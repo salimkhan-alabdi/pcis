@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loyiha Yakuniy Inventarizatsiyasi / Project Closure Inventory</title>
+    <meta name="description" content="Loyiha yakuniy inventarizatsiyasi, hududiy jamlanma, tafovutlar qaydnomasi va topshirish-qabul qilish elektron tizimi" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Top Global Banner -->
+      <header class="app-header">
+        <div class="header-top">
+          <div class="brand-group">
+            <div class="logo-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+              </svg>
+            </div>
+            <div class="brand-titles">
+              <h1 class="brand-main">LOYIHA YAKUNIY INVENTARIZATSIYASI</h1>
+              <p class="brand-sub">PROJECT CLOSURE INVENTORY SYSTEM &bull; UZ / EN</p>
+            </div>
+          </div>
+
+          <div class="header-actions">
+            <button id="btn-export-excel" class="btn btn-primary" title="Excel faylni yuklab olish (.xlsx)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Eksport / Export Excel (.xlsx)</span>
+            </button>
+
+            <label for="excel-file-input" class="btn btn-secondary" title="Mavjud Excel faylni yuklash">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <span>Import Excel</span>
+              <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;" />
+            </label>
+
+            <button id="btn-add-item-modal" class="btn btn-accent">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>+ Yangi tovar / Add Item</span>
+            </button>
+
+            <button id="btn-reset-data" class="btn btn-ghost" title="Namunaviy ma'lumotlarni qayta tiklash">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="1 4 1 10 7 10"></polyline>
+                <polyline points="23 20 23 14 17 14"></polyline>
+                <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+              </svg>
+              <span>Qayta tiklash / Reset</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Project Meta Strip -->
+        <div class="project-meta-strip">
+          <div class="meta-field">
+            <span class="meta-label">Loyiha / Project:</span>
+            <input type="text" id="meta-project-name" class="meta-input" value="" placeholder="Loyiha nomini kiriting..." />
+          </div>
+          <div class="meta-field">
+            <span class="meta-label">Buyruq / Order:</span>
+            <input type="text" id="meta-order-no" class="meta-input" value="" placeholder="Buyruq raqami va sanasi..." />
+          </div>
+          <div class="meta-field">
+            <span class="meta-label">Sana / Date:</span>
+            <input type="date" id="meta-inv-date" class="meta-input date-input" value="" />
+          </div>
+          <div class="meta-field rate-field">
+            <span class="meta-label">USD kursi / Rate:</span>
+            <div class="rate-input-wrap">
+              <span class="rate-symbol">$1 =</span>
+              <input type="number" id="meta-usd-rate" class="meta-input number-input" value="12850" min="1" step="10" />
+              <span class="rate-currency">UZS</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <nav class="tabs-nav" role="tablist">
+          <button class="tab-btn active" data-tab="tab-inventory" role="tab" id="nav-inventory">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            <span>1. Asosiy inventarizatsiya / Main Inventory</span>
+            <span class="tab-badge" id="badge-total-items">0</span>
+          </button>
+
+          <button class="tab-btn" data-tab="tab-regional" role="tab" id="nav-regional">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+            <span>2. Hududlar jamlanmasi / Regional Summary</span>
+            <span class="tab-badge">14 hudud</span>
+          </button>
+
+          <button class="tab-btn" data-tab="tab-discrepancies" role="tab" id="nav-discrepancies">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <span>3. Tafovutlar qaydnomasi / Discrepancies</span>
+            <span class="tab-badge alert-badge" id="badge-discrepancies-count">0</span>
+          </button>
+
+          <button class="tab-btn" data-tab="tab-handover" role="tab" id="nav-handover">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              <path d="m9 14 2 2 4-4"></path>
+            </svg>
+            <span>4. Topshirish-qabul qilish / Handover</span>
+            <span class="tab-badge" id="badge-handover-count">0</span>
+          </button>
+
+          <button class="tab-btn" data-tab="tab-committee" role="tab" id="nav-committee">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>5. Komissiya va imzolar / Committee</span>
+            <span class="tab-badge success-badge">Tayyor</span>
+          </button>
+        </nav>
+      </header>
+
+      <!-- Main Content Area -->
+      <main class="app-main">
+        <!-- TAB 1: INVENTORY -->
+        <section id="tab-inventory" class="tab-content active" role="tabpanel">
+          <!-- KPI Summary Cards -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-icon-wrap bg-navy">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 7h-9m9 5h-9m9 5h-9M4 7h.01M4 12h.01M4 17h.01"></path>
+                </svg>
+              </div>
+              <div class="kpi-content">
+                <span class="kpi-label">Jami pozitsiyalar / Total Items</span>
+                <span class="kpi-value" id="kpi-total-items">0</span>
+                <span class="kpi-sub" id="kpi-total-units">0 dona/birlik</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-icon-wrap bg-blue">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="1" x2="12" y2="23"></line>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+              </div>
+              <div class="kpi-content">
+                <span class="kpi-label">Hisob qiymati / Book Value</span>
+                <span class="kpi-value" id="kpi-book-val-uzs">0 UZS</span>
+                <span class="kpi-sub" id="kpi-book-val-usd">$0 USD</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-icon-wrap bg-indigo">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+              </div>
+              <div class="kpi-content">
+                <span class="kpi-label">Haqiqiy qiymat / Actual Value</span>
+                <span class="kpi-value" id="kpi-actual-val-uzs">0 UZS</span>
+                <span class="kpi-sub" id="kpi-actual-val-usd">$0 USD</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-icon-wrap" id="kpi-diff-icon-wrap">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                  <polyline points="17 6 23 6 23 12"></polyline>
+                </svg>
+              </div>
+              <div class="kpi-content">
+                <span class="kpi-label">Tafovut balansi / Net Diff</span>
+                <span class="kpi-value" id="kpi-diff-val">0 UZS</span>
+                <span class="kpi-sub" id="kpi-diff-sub">Farq yo'q</span>
+              </div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-icon-wrap bg-amber">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+              </div>
+              <div class="kpi-content">
+                <span class="kpi-label">Ortiqcha / Kamomad</span>
+                <span class="kpi-value">
+                  <span class="text-success" id="kpi-surplus-count">+0</span> /
+                  <span class="text-danger" id="kpi-shortage-count">-0</span>
+                </span>
+                <span class="kpi-sub" id="kpi-discrepancy-status">Tafovutlar holati</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Inventory Filter Toolbar -->
+          <div class="filter-toolbar">
+            <div class="search-box">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="search-inventory" placeholder="Tovar kodi, nomi, mas'ul shaxs, tashkilot bo'yicha qidirish..." />
+              <button id="btn-clear-search" class="btn-clear" title="Tozalash">&times;</button>
+            </div>
+
+            <div class="filter-controls">
+              <select id="filter-region" class="filter-select">
+                <option value="">Barcha hududlar / All Regions (14)</option>
+              </select>
+
+              <select id="filter-discrepancy" class="filter-select">
+                <option value="all">Barcha holatlar / All status</option>
+                <option value="exact">Mos kelganlar / Exact match (Farqsiz)</option>
+                <option value="discrepancy">Faqat tafovutli / Any Discrepancy</option>
+                <option value="surplus">Ortiqcha / Surplus only</option>
+                <option value="shortage">Kamomad / Shortage only</option>
+              </select>
+
+              <select id="filter-currency" class="filter-select">
+                <option value="all">Barcha valyutalar / Currency</option>
+                <option value="UZS">UZS (So'm)</option>
+                <option value="USD">USD ($)</option>
+              </select>
+
+              <select id="filter-condition" class="filter-select">
+                <option value="all">Barcha holatlar / Condition</option>
+                <option value="Yangi / New">Yangi / New</option>
+                <option value="Yaxshi / Good">Yaxshi / Good</option>
+                <option value="Qoniqarli / Satisfactory">Qoniqarli / Satisfactory</option>
+                <option value="Ta'mir talab / Needs repair">Ta'mir talab / Needs repair</option>
+                <option value="Yaroqsiz / Defective">Yaroqsiz / Defective</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Data Table Wrapper -->
+          <div class="table-card">
+            <div class="table-card-header">
+              <div class="table-title-group">
+                <h3>Asosiy inventarizatsiya reyestri (1-varaq)</h3>
+                <span class="table-count-badge" id="inventory-shown-count">0 ta ko'rsatilmoqda</span>
+              </div>
+              <div class="table-quick-actions">
+                <button class="btn btn-sm btn-outline" id="btn-print-inventory-table">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                  </svg>
+                  <span>Chop etish / Print</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive" id="inventory-table-container">
+              <table class="data-table" id="inventory-table">
+                <thead>
+                  <tr>
+                    <th class="col-num">№</th>
+                    <th>Tovar kodi / Item code</th>
+                    <th class="col-desc">Tovar nomi / Item description</th>
+                    <th>Birlik</th>
+                    <th>Hudud / Region</th>
+                    <th>Qabul qiluvchi tashkilot</th>
+                    <th>Saqlash joyi</th>
+                    <th>Mas'ul shaxs</th>
+                    <th class="col-qty">Hisob miqdori</th>
+                    <th class="col-qty">Haqiqiy miqdor</th>
+                    <th class="col-qty">Ortiqcha</th>
+                    <th class="col-qty">Kamomad</th>
+                    <th class="col-currency">Birlik narxi</th>
+                    <th>Valyuta</th>
+                    <th class="col-currency">Hisob qiymati</th>
+                    <th class="col-currency">Haqiqiy qiymat</th>
+                    <th class="col-currency">Farq / Diff</th>
+                    <th>Holati / Condition</th>
+                    <th>Hujjat №</th>
+                    <th>Izoh</th>
+                    <th class="col-actions">Amallar</th>
+                  </tr>
+                </thead>
+                <tbody id="inventory-tbody">
+                  <!-- Dynamically Rendered -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 2: REGIONAL SUMMARY -->
+        <section id="tab-regional" class="tab-content" role="tabpanel">
+          <div class="regional-header-banner">
+            <div>
+              <h2>Hududlar bo'yicha jamlanma reyestri (2-varaq)</h2>
+              <p>O'zbekiston Respublikasining 14 ta hududi bo'yicha tovar-moddiy boyliklar va mablag'lar taqsimoti</p>
+            </div>
+            <div class="regional-actions">
+              <button class="btn btn-secondary" id="btn-print-regional">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                  <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                <span>Jamlanmani chop etish</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Regional Visualization Bar -->
+          <div class="regional-visual-card">
+            <h4 class="visual-title">Hududlar bo'yicha aktivlar qiymati ulushi (UZS & USD jami ekvivalent)</h4>
+            <div class="regional-bars-container" id="regional-visual-bars">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Regional Summary Table -->
+          <div class="table-card">
+            <div class="table-responsive">
+              <table class="data-table regional-table" id="regional-table">
+                <thead>
+                  <tr>
+                    <th style="width: 40px;">№</th>
+                    <th>Hudud / Region</th>
+                    <th class="col-qty">Pozitsiyalar / Items</th>
+                    <th class="col-qty">Hisob miqdori / Book qty</th>
+                    <th class="col-qty">Haqiqiy miqdor / Actual qty</th>
+                    <th class="col-qty">Ortiqcha / Surplus</th>
+                    <th class="col-qty">Kamomad / Shortage</th>
+                    <th class="col-currency">UZS qiymati / UZS value</th>
+                    <th class="col-currency">USD qiymati / USD value</th>
+                    <th class="col-actions">Amal</th>
+                  </tr>
+                </thead>
+                <tbody id="regional-tbody">
+                  <!-- Rendered via JS -->
+                </tbody>
+                <tfoot id="regional-tfoot">
+                  <!-- Grand Totals -->
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 3: DISCREPANCIES -->
+        <section id="tab-discrepancies" class="tab-content" role="tabpanel">
+          <div class="discrepancy-header-banner">
+            <div>
+              <h2>Tafovutlar qaydnomasi (3-varaq / Discrepancy Register)</h2>
+              <p>Haqiqiy mavjudlik bilan hisob ma'lumotlari o'rtasida farq (ortiqcha yoki kamomad) aniqlangan pozitsiyalar</p>
+            </div>
+            <div class="discrepancy-status-tags">
+              <div class="disc-stat-pill surplus-pill">
+                <span class="pill-label">Ortiqcha tovarlar:</span>
+                <strong id="disc-summary-surplus">0 ta</strong>
+              </div>
+              <div class="disc-stat-pill shortage-pill">
+                <span class="pill-label">Kamomad tovarlar:</span>
+                <strong id="disc-summary-shortage">0 ta</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="discrepancy-notice-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <div>
+              <strong>Eslatma va ko'rsatma:</strong> Ushbu sahifadagi har bir tafovut bo'yicha mas'ul shaxsdan yozma tushuntirish xati (Izoh) olinishi va komissiya tomonidan bartaraf etish chorasi (Kirim qilish / Hisobdan chiqarish / Servisga yuborish / Undirish) belgilanishi shart. O'zgarishlar avtomatik saqlanadi va Excel faylga eksport qilinadi.
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="table-card-header">
+              <div class="table-title-group">
+                <h3>Aniqlangan tafovutlar ro'yxati</h3>
+                <span class="table-count-badge" id="discrepancy-count-badge">0 ta holat</span>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table" id="discrepancies-table">
+                <thead>
+                  <tr>
+                    <th>Item code</th>
+                    <th>Item description</th>
+                    <th>Region</th>
+                    <th>Institution</th>
+                    <th class="col-qty">Book qty</th>
+                    <th class="col-qty">Actual qty</th>
+                    <th class="col-qty">Surplus</th>
+                    <th class="col-qty">Shortage</th>
+                    <th class="col-currency">Difference value</th>
+                    <th>Condition</th>
+                    <th style="min-width: 250px;">Explanation / Izoh (Tushuntirish)</th>
+                    <th style="min-width: 240px;">Corrective action / Chora</th>
+                    <th>Responsible person</th>
+                  </tr>
+                </thead>
+                <tbody id="discrepancies-tbody">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 4: HANDOVER REGISTER -->
+        <section id="tab-handover" class="tab-content" role="tabpanel">
+          <div class="handover-header-banner">
+            <div>
+              <h2>Topshirish-qabul qilish reyestri (4-varaq / Handover Register)</h2>
+              <p>Loyiha yakunida tovar-moddiy boyliklarni qabul qiluvchi benefitsiar tashkilotlarga topshirish dalolatnomalari</p>
+            </div>
+            <div class="handover-actions">
+              <button class="btn btn-primary" id="btn-create-handover-modal">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>+ Yangi topshirish akti / New Act</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="table-responsive">
+              <table class="data-table" id="handover-table">
+                <thead>
+                  <tr>
+                    <th>Sana / Date</th>
+                    <th>Hujjat № / Doc No.</th>
+                    <th>Tovar kodi / Item code</th>
+                    <th style="min-width: 200px;">Tovar nomi / Description</th>
+                    <th class="col-qty">Miqdor / Qty</th>
+                    <th>Birlik</th>
+                    <th>Hudud / Region</th>
+                    <th>Qabul qiluvchi tashkilot</th>
+                    <th>Qabul qiluvchi vakili</th>
+                    <th>Topshiruvchi</th>
+                    <th>Holati</th>
+                    <th>Asos hujjati</th>
+                    <th>Imzolar</th>
+                    <th>Izoh</th>
+                    <th class="col-actions">Chop etish</th>
+                  </tr>
+                </thead>
+                <tbody id="handover-tbody">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- TAB 5: COMMITTEE & PROTOCOL -->
+        <section id="tab-committee" class="tab-content" role="tabpanel">
+          <div class="committee-header-banner">
+            <div>
+              <h2>Inventarizatsiya komissiyasi va yakuniy dalolatnoma (5-varaq)</h2>
+              <p>Loyiha rahbariyati, komissiya a'zolari va bosh buxgalter tomonidan tasdiqlanadigan rasmiy inventarizatsiya dalolatnomasi</p>
+            </div>
+            <div class="committee-actions">
+              <button class="btn btn-primary" id="btn-print-committee-protocol">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                  <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                <span>Rasmiy Dalolatnomani chop etish / Print Protocol</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="committee-layout">
+            <!-- Organization and Commission Info Card -->
+            <div class="card committee-card">
+              <h3 class="card-title">Komissiya ma'lumotlari / Commission Details</h3>
+              <div class="form-grid">
+                <div class="form-group span-2">
+                  <label>Tashkilot / Organization:</label>
+                  <input type="text" id="comm-org" class="form-control" />
+                </div>
+                <div class="form-group span-2">
+                  <label>Loyiha / Project:</label>
+                  <input type="text" id="comm-project" class="form-control" />
+                </div>
+                <div class="form-group">
+                  <label>Buyruq raqami / Order No.:</label>
+                  <input type="text" id="comm-order-no" class="form-control" />
+                </div>
+                <div class="form-group">
+                  <label>Boshlanish sanasi / Start date:</label>
+                  <input type="date" id="comm-start-date" class="form-control" />
+                </div>
+                <div class="form-group">
+                  <label>Tugash sanasi / End date:</label>
+                  <input type="date" id="comm-end-date" class="form-control" />
+                </div>
+              </div>
+
+              <h4 class="section-sub-title">Komissiya a'zolari / Commission Members & Signatures</h4>
+              <div class="table-responsive">
+                <table class="data-table member-table">
+                  <thead>
+                    <tr>
+                      <th>Lavozim / Role</th>
+                      <th>F.I.Sh. / Full name</th>
+                      <th>Imzo / Signature</th>
+                      <th>Sana / Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="comm-members-tbody">
+                    <!-- Rendered via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Decisions and Findings Card -->
+            <div class="card committee-card">
+              <h3 class="card-title">Xulosa va Rahbar qarori / Conclusions & Findings</h3>
+              
+              <div class="form-group mb-4">
+                <label class="font-bold">1. Xulosa / Conclusion:</label>
+                <textarea id="comm-conclusion" class="form-control" rows="3"></textarea>
+              </div>
+
+              <div class="form-group mb-4">
+                <label class="font-bold">2. Aniqlangan tafovutlar / Discrepancies identified:</label>
+                <textarea id="comm-discrepancies" class="form-control" rows="3"></textarea>
+              </div>
+
+              <div class="form-group mb-4">
+                <label class="font-bold">3. Tavsiya etilgan choralar / Recommended actions:</label>
+                <textarea id="comm-recommended" class="form-control" rows="3"></textarea>
+              </div>
+
+              <div class="form-group mb-4">
+                <label class="font-bold">4. Rahbar qarori / Management decision:</label>
+                <textarea id="comm-decision" class="form-control" rows="3"></textarea>
+              </div>
+
+              <div class="save-row">
+                <button class="btn btn-primary" id="btn-save-committee">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                    <polyline points="7 3 7 8 15 8"></polyline>
+                  </svg>
+                  <span>O'zgarishlarni saqlash / Save Changes</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <div class="footer-left">
+          <span>O'zbekiston Respublikasi &bull; Loyiha inventarizatsiyasi va aktivlar boshqaruvi</span>
+        </div>
+        <div class="footer-right">
+          <span class="status-indicator online"></span>
+          <span>Excel sinxronizatsiyasi faol: <code>Project_Inventory_UZ_EN.xlsx</code></span>
+        </div>
+      </footer>
+    </div>
+
+    <!-- MODAL: ADD / EDIT INVENTORY ITEM -->
+    <div id="item-modal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 id="modal-item-title">Yangi tovar qo'shish / Add Inventory Item</h3>
+          <button class="btn-modal-close" id="btn-close-item-modal">&times;</button>
+        </div>
+        <form id="item-form" class="modal-body">
+          <input type="hidden" id="item-id" />
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Tovar kodi / Item code *</label>
+              <input type="text" id="f-code" class="form-control" placeholder="Masalan: ITM-2026-016" required />
+            </div>
+
+            <div class="form-group">
+              <label>O'lchov birligi / Unit *</label>
+              <select id="f-unit" class="form-control" required></select>
+            </div>
+
+            <div class="form-group span-2">
+              <label>Tovar nomi / Item description *</label>
+              <input type="text" id="f-desc" class="form-control" placeholder="To'liq nomi va modeli..." required />
+            </div>
+
+            <div class="form-group span-2">
+              <label>Hudud / Region *</label>
+              <select id="f-region" class="form-control" required></select>
+            </div>
+
+            <div class="form-group">
+              <label>Qabul qiluvchi tashkilot / Institution *</label>
+              <input type="text" id="f-institution" class="form-control" placeholder="Tashkilot nomi..." required />
+            </div>
+
+            <div class="form-group">
+              <label>Saqlash joyi / Location</label>
+              <input type="text" id="f-location" class="form-control" placeholder="Omborxona, xona raqami..." />
+            </div>
+
+            <div class="form-group">
+              <label>Mas'ul shaxs / Responsible person *</label>
+              <input type="text" id="f-responsible" class="form-control" placeholder="F.I.Sh." required />
+            </div>
+
+            <div class="form-group">
+              <label>Holati / Condition</label>
+              <select id="f-condition" class="form-control"></select>
+            </div>
+
+            <div class="form-group">
+              <label>Hisob miqdori / Book qty *</label>
+              <input type="number" id="f-book-qty" class="form-control" min="0" step="1" required />
+            </div>
+
+            <div class="form-group">
+              <label>Haqiqiy miqdor / Actual qty *</label>
+              <input type="number" id="f-actual-qty" class="form-control" min="0" step="1" required />
+            </div>
+
+            <div class="form-group">
+              <label>Birlik narxi / Unit price *</label>
+              <input type="number" id="f-unit-price" class="form-control" min="0" step="any" required />
+            </div>
+
+            <div class="form-group">
+              <label>Valyuta / Currency *</label>
+              <select id="f-currency" class="form-control">
+                <option value="UZS">UZS (O'zbek so'mi)</option>
+                <option value="USD">USD (AQSh dollari)</option>
+              </select>
+            </div>
+
+            <!-- Auto-Calculated Live Preview Box -->
+            <div class="calculated-preview span-2">
+              <div class="preview-metric">
+                <span class="preview-label">Ortiqcha / Surplus:</span>
+                <strong id="prev-surplus" class="text-success">0</strong>
+              </div>
+              <div class="preview-metric">
+                <span class="preview-label">Kamomad / Shortage:</span>
+                <strong id="prev-shortage" class="text-danger">0</strong>
+              </div>
+              <div class="preview-metric">
+                <span class="preview-label">Hisob qiymati:</span>
+                <strong id="prev-book-val">0</strong>
+              </div>
+              <div class="preview-metric">
+                <span class="preview-label">Haqiqiy qiymat:</span>
+                <strong id="prev-actual-val">0</strong>
+              </div>
+              <div class="preview-metric">
+                <span class="preview-label">Farq / Diff:</span>
+                <strong id="prev-diff">0</strong>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Topshirish hujjati / Handover doc</label>
+              <input type="text" id="f-handover-doc" class="form-control" placeholder="Masalan: TT-016/2026" />
+            </div>
+
+            <div class="form-group">
+              <label>Izoh / Remarks</label>
+              <input type="text" id="f-remarks" class="form-control" placeholder="Qo'shimcha izoh..." />
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="btn-cancel-item">Bekor qilish</button>
+            <button type="submit" class="btn btn-primary" id="btn-save-item">Saqlash / Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: CREATE HANDOVER ACT -->
+    <div id="handover-modal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Yangi topshirish-qabul qilish akti / New Handover Act</h3>
+          <button class="btn-modal-close" id="btn-close-handover-modal">&times;</button>
+        </div>
+        <form id="handover-form" class="modal-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Sana / Date *</label>
+              <input type="date" id="ho-f-date" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+              <label>Hujjat raqami / Doc No. *</label>
+              <input type="text" id="ho-f-docno" class="form-control" placeholder="Masalan: TT-16/2026" required />
+            </div>
+
+            <div class="form-group span-2">
+              <label>Mavjud tovarni tanlash (Ixtiyoriy):</label>
+              <select id="ho-f-select-item" class="form-control">
+                <option value="">-- Tovarni ro'yxatdan tanlash --</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Tovar kodi / Item code *</label>
+              <input type="text" id="ho-f-code" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+              <label>O'lchov birligi / Unit *</label>
+              <input type="text" id="ho-f-unit" class="form-control" value="dona" required />
+            </div>
+
+            <div class="form-group span-2">
+              <label>Tovar nomi / Description *</label>
+              <input type="text" id="ho-f-desc" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+              <label>Topshirilayotgan miqdor / Quantity *</label>
+              <input type="number" id="ho-f-qty" class="form-control" min="1" required />
+            </div>
+
+            <div class="form-group">
+              <label>Holati / Condition *</label>
+              <select id="ho-f-condition" class="form-control">
+                <option value="Yaxshi / Good">Yaxshi / Good</option>
+                <option value="Yangi / New">Yangi / New</option>
+                <option value="Qoniqarli / Satisfactory">Qoniqarli / Satisfactory</option>
+              </select>
+            </div>
+
+            <div class="form-group span-2">
+              <label>Hudud / Region *</label>
+              <select id="ho-f-region" class="form-control" required></select>
+            </div>
+
+            <div class="form-group span-2">
+              <label>Qabul qiluvchi tashkilot / Receiving Institution *</label>
+              <input type="text" id="ho-f-institution" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+              <label>Qabul qiluvchi vakili / Recipient Name *</label>
+              <input type="text" id="ho-f-recipient" class="form-control" placeholder="F.I.Sh." required />
+            </div>
+
+            <div class="form-group">
+              <label>Topshiruvchi / Transferor *</label>
+              <input type="text" id="ho-f-transferor" class="form-control" placeholder="F.I.Sh." required />
+            </div>
+
+            <div class="form-group span-2">
+              <label>Asos hujjati / Supporting Document</label>
+              <input type="text" id="ho-f-supporting" class="form-control" placeholder="Vazirlik buyrug'i, loyiha kelishuvi..." />
+            </div>
+
+            <div class="form-group span-2">
+              <label>Izoh / Remarks</label>
+              <input type="text" id="ho-f-remarks" class="form-control" placeholder="Qo'shimcha ma'lumotlar..." />
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" id="btn-cancel-handover">Bekor qilish</button>
+            <button type="submit" class="btn btn-primary">Aktni saqlash / Save Act</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: PRINT PREVIEW (FOR PROTOCOLS & HANDOVER ACTS) -->
+    <div id="print-modal" class="modal-overlay hidden">
+      <div class="modal-card print-modal-card">
+        <div class="modal-header no-print">
+          <h3 id="print-modal-title">Hujjatni chop etish va ko'rish</h3>
+          <div class="modal-header-actions">
+            <button class="btn btn-primary" id="btn-execute-print">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+              </svg>
+              <span>Chop etish / Print (PDF)</span>
+            </button>
+            <button class="btn-modal-close" id="btn-close-print-modal">&times;</button>
+          </div>
+        </div>
+        <div class="modal-body print-modal-body" id="printable-sheet-content">
+          <!-- Dynamically Injected Clean Printable Document -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
