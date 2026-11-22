@@ -1,62 +1,128 @@
-# Loyiha Yakuniy Inventarizatsiyasi / Project Closure Inventory System
+# PEMS-UZ: Project Equipment Management System (Uzbekistan)
 
-Ushbu loyiha yakuniy inventarizatsiyasini boshqarish, hududlar bo'yicha tovar-moddiy boyliklar jamlanmasini shakllantirish, tafovutlar (ortiqcha va kamomad) tahlili, topshirish-qabul qilish dalolatnomalarini yaratish hamda inventarizatsiya komissiyasi xulosalarini rasmiylashtirish uchun to'liq interaktiv tizim.
-
----
-
-## 🚀 Tizim imkoniyatlari (Features)
-
-1. **Asosiy inventarizatsiya reyestri (1-varaq / Main Inventory)**:
-   - 21 ta ustundan iborat to'liq audit jadvali (№, Tovar kodi, Tovar nomi, Birlik, Hudud, Qabul qiluvchi tashkilot, Saqlash joyi, Mas'ul shaxs, Hisob miqdori, Haqiqiy miqdor, Ortiqcha, Kamomad, Birlik narxi, Valyuta, USD kursi, Hisob qiymati, Haqiqiy qiymat, Farq, Holati, Hujjat №, Izoh).
-   - Real vaqtda formulalarni avtomatik hisoblash (Ortiqcha = MAX(J-I, 0), Kamomad = MAX(I-J, 0), Qiymatlar va Tafovut balansi).
-   - Qidiruv, hududlar bo'yicha filtrlash, holatlar va valyutalar bo'yicha saralash.
-   - Yangi tovar qo'shish va tahrirlash (jonli hisob-kitoblar ko'rinishi bilan).
-
-2. **Hududlar bo'yicha jamlanma (2-varaq / Regional Summary)**:
-   - O'zbekiston Respublikasining barcha 14 ta hududi (Qoraqalpog'iston Respublikasi, 12 ta viloyat va Toshkent shahri) bo'yicha avtomatik jamlangan ma'lumotlar.
-   - Pozitsiyalar soni, hisob va haqiqiy miqdorlar, ortiqcha va kamomadlar, UZS va USD qiymatlari.
-   - Hududlar bo'yicha aktivlar taqsimoti infografikasi va bir bosishda hudud tovarlariga o'tish (Drill-down filtrlash).
-
-3. **Tafovutlar qaydnomasi (3-varaq / Discrepancies Register)**:
-   - Ortiqcha yoki kamomad aniqlangan har bir tovar bo'yicha avtomatik filtrlangan ro'yxat.
-   - Har bir holat bo'yicha mas'ul shaxsning yozma izohi (tushuntirish xati) va ko'riladigan chora (kirim qilish, hisobdan chiqarish, servisga yo'naltirish) maydonlari (avtomatik saqlanadi).
-
-4. **Topshirish-qabul qilish reyestri (4-varaq / Handover Register)**:
-   - Benefitsiar tashkilotlarga aktivlarni topshirish dalolatnomalari reyestri.
-   - Tovarni tanlaganda avtomatik to'ldiriladigan yangi akt yaratish moduli.
-   - A4 formatidagi rasmiy, ikki tilli (O'zbek / Ingliz) topshirish-qabul qilish dalolatnomasini chop etish (Print / PDF).
-
-5. **Inventarizatsiya komissiyasi va yakuniy bayonnoma (5-varaq / Committee Protocol)**:
-   - Komissiya tarkibi (Rais, a'zolar, bosh buxgalter, moddiy javobgar shaxs) va imzolar.
-   - Xulosa, aniqlangan tafovutlar, tavsiya etilgan choralar va rahbar qarori.
-   - Rasmiy vazirlik / loyiha inventarizatsiya bayonnomasini chop etish (Print / PDF).
-
-6. **Excel (.xlsx) integratsiyasi**:
-   - Brauzerning o'zidan barcha 5 ta varaqni o'z ichiga olgan haqiqiy `Project_Inventory_UZ_EN.xlsx` faylini yuklab olish (Export).
-   - Excel faylni tizimga qayta yuklash (Import) va ma'lumotlarni yangilash.
-   - Python dasturchilari uchun tayyor `generate_inventory_excel.py` skripti mavjud.
+> **Система:** PEMS-UZ — PROJECT EQUIPMENT MANAGEMENT SYSTEM &bull; UZBEKISTAN  
+> **Разработчик / Developed by:** Abdiyev Salimkhon Sanjar ugli  
+> **Проекты:** Азиатский банк развития (АБР / ADB) и Азиатский банк инфраструктурных инвестиций (АБИИ / AIIB)  
+> **Заказчик:** Группа реализации проекта (ГРП) / Project Implementation Unit (PIU)  
+> **Языки интерфейса:** Русский (RU), O'zbekcha (UZ), English (EN)  
+> **Валюты отображения:** USD ($) и UZS (сум)
 
 ---
 
-## 💻 Ishga tushirish (Running Locally)
+## 📌 О системе / Loyiha haqida / About the System
 
-### 1. Veb-ilovadan foydalanish:
+**PEMS-UZ (Project Equipment Management System – Uzbekistan)** — единая электронная информационная система, разработанная в точном соответствии с утверждённым **Техническим заданием (ТЗ)** для Группы реализации проектов (ГРП).
+
+Система обеспечивает сквозную прослеживаемость (**Chain of Custody**) каждой единицы медицинского, лабораторного, диагностического и технологического оборудования от момента утверждения его закупки постановлением Президента Республики Узбекистан и технико-экономическим обоснованием (ТЭО) до конечного кабинета и рабочего места в лабораториях Санэпидқўм по всем 14 регионам Узбекистана.
+
+---
+
+## 🏗 Архитектура и функциональные модули (ТЗ)
+
+### 📊 Главная панель управления (Dashboard & Lifecycle Funnel)
+- **Сквозная воронка жизненного цикла (Pipeline Reconciliation):**
+  `ТЭО (Этап 1)` ➔ `Контракты (Этап 2)` ➔ `Поступление / УзАСБО (Этап 3)` ➔ `Передача / Transfer (Этап 4)` ➔ `Монтаж (Этап 5)` ➔ `Ввод в эксплуатацию (Этап 6)` ➔ `Мониторинг ГРП (Этап 7)` ➔ `Инвентаризация (Этап 8)`.
+- **10 официальных KPI (ТЗ п. 10.1):**
+  1. Количество по ТЭО
+  2. Закуплено по контрактам
+  3. Фактически поступило (УзАСБО)
+  4. Передано получателям
+  5. Установлено (монтаж)
+  6. Введено в эксплуатацию
+  7. Прошло мониторинг ГРП
+  8. Оборудование с дефектами
+  9. Проинвентаризировано
+  10. Нераспределённый остаток / резерв.
+- Таблица оперативного реагирования по оборудованию с дефектами и рекламациями.
+
+---
+
+### 📜 Модуль № 1: Распределение оборудования по ТЭО (Feasibility Study)
+- Регистрация постановлений Президента (№ PQ-3818 от 16.10.2023 г.) и ТЭО (№ TEO-ADB/AIIB-2023/V4).
+- Автоматическое сопоставление утверждённого, распределённого, поставленного и переданного количества.
+- Контроль нераспределённого остатка оборудования в реальном времени.
+
+### 📑 Модуль № 2: Закупки и контракты (Procurement & Contracts)
+- Регистрация контрактов и поставщиков (Bio-Rad, Agilent, Esco, Tuttnauer и др.).
+- Спецификация оборудования: комплектующие, год выпуска, серийные диапазоны, страна происхождения.
+- Учёт сопутствующих услуг, внутренней логистики, авиаперевозок, страхования и упаковки.
+- Контроль гарантийных обязательств поставщиков (24–36 месяцев).
+
+### 📦 Модуль № 3: Поступление оборудования и учёт в УзАСБО (Receipts & UzASBO)
+- Фиксация счетов-фактур, дат фактического поступления и грузовых таможенных деклараций (ГТД).
+- Контроль централизованного бухгалтерского оформления в системе **УзАСБО** (013-счёт).
+- Автоматическая генерация внутренних номеров документов движения оборудования (**Transfer №**).
+
+### 🚚 Модуль № 4: Передача оборудования конечным получателям (Handover & Transfer)
+- Регистрация актов приёма-передачи с привязкой к ИНН (СТИР), районам, отделениям и МОЛ.
+- Контроль остатка оборудования после каждой передачи.
+- Формирование официального двуязычного Акта приёма-передачи формата А4 с реквизитами для подписей и печатей (M.O'.).
+
+### ⚙️ Модуль № 5: Установка и ввод в эксплуатацию (Installation & Commissioning)
+- **7 официальных статусов установки (ТЗ п. 7.3):**
+  *Rejalashtirilgan, Yetkazib berilgan, O‘rnatish jarayonida, O‘rnatilgan, Sinovdan o‘tkazilgan, Foydalanishga topshirilgan, Muammo aniqlangan*.
+- Фиксация дат монтажа, протоколов испытаний, обучения персонала и номеров актов ввода.
+
+### 🔍 Модуль № 6: Мониторинг оборудования со стороны ГРП (PIU Monitoring)
+- Планирование и учёт выездных проверок лабораторий инспекторами ГРП.
+- **8 категорий технического состояния (ТЗ п. 8.4):**
+  *Foydalanishga topshirilgan, Ishga yaroqli, Nuqsonli, Ta'mirlash talab etiladi, Ishlamaydi, Ehtiyot qismlari yetishmaydi, Jismoniy shikastlangan, Foydalanishga yaroqsiz*.
+- Текстовое описание дефектов, фотофиксация, предписания и сроки устранения замечаний.
+
+### 📋 Модуль № 7: Инвентаризация (Inventory Audit)
+- Сличение фактического наличия с данными бухгалтерского учёта (Учёт vs Факт).
+- Автоматический расчёт излишков (Surplus) и недостач (Shortage).
+- Итоговый протокол инвентаризационной комиссии с подписями председателя, членов комиссии и главного бухгалтера.
+
+### 📈 Модуль № 8: Отчёты и аналитика (13 официальных отчётов ТЗ)
+1. Перечень оборудования согласно утверждённому ТЭО
+2. Отчёт о распределении оборудования по регионам (14 регионов)
+3. Отчёт о закупленном оборудовании по контрактам
+4. Отчёт о фактически поступившем оборудовании
+5. Отчёт по документам Transfer
+6. Отчёт о передаче оборудования конечным организациям
+7. Отчёт об установке и вводе в эксплуатацию
+8. Отчёт о гарантийных обязательствах
+9. Отчёт о техническом состоянии оборудования
+10. Отчёт о результатах мониторинга ГРП
+11. Инвентаризационный отчёт
+12. Отчёт о выявленных расхождениях и дефектах
+13. Итоговый проектный отчёт по завершении проекта.
+
+### 🗂 Модуль № 9: Электронная карточка оборудования, Роли (RBAC) и Журнал аудита
+- **Карточка оборудования (Equipment Passport)** по всем 21 пунктам из Раздела 13 ТЗ:
+  Уникальный ID PEMS-UZ, ТЭО, Контракт, Характеристики, Серийный №, Инвентарный №, Стоимость USD/UZS, Поставщик, Дата поступления, Transfer №, Получатель, Акт передачи, Монтаж, Ввод в эксплуатацию, МОЛ, Местонахождение, Техсостояние, Мониторинг, Инвентаризация, Фото, Хронология всех перемещений.
+- **8 ролей пользователей (ТЗ Раздел 11):**
+  *Administrator, GRP Management, GRP Procurement, GRP Equipment, GRP Monitoring, Inventory Commission, Regional User, Receiving Organization*.
+- **Журнал аудита (Audit Trail Log):** Неизменяемая фиксация всех операций (кто, когда, модуль, старое и новое значения).
+
+---
+
+## 💻 Установка и локальный запуск
+
 ```bash
-# Kutubxonalarni o'rnatish
+# Установка зависимостей
 npm install
 
-# Mahalliy dev serverni ishga tushirish
+# Запуск локального сервера разработки
 npm run dev
 ```
-Brauzerda oching: `http://127.0.0.1:5173/`
+Откройте в браузере: `http://localhost:5173/`
 
-### 2. Python skripti orqali to'g'ridan-to'g'ri Excel yaratish:
+Сборка для продакшн:
 ```bash
-# openpyxl kutubxonasi o'rnatilgan bo'lishi kerak:
-pip install openpyxl
+npm run build
+```
 
-# Skriptni ishga tushirish:
+Автономный экспорт в Excel через Python (openpyxl):
+```bash
 python3 generate_inventory_excel.py
 ```
-Natijada loyiha papkasida `Project_Inventory_UZ_EN.xlsx` fayli hosil bo'ladi.
-# pcis
+
+---
+
+## 👨‍💻 Разработчик системы
+
+**Abdiyev Salimkhon Sanjar ugli**  
+*PEMS-UZ (Project Equipment Management System – Uzbekistan)*  
+*Проекты Азиатского банка развития (АБР) и Азиатского банка инфраструктурных инвестиций (АБИИ)*

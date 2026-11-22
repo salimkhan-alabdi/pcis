@@ -1,62 +1,337 @@
 import * as XLSX from "xlsx";
-import { UZBEKISTAN_REGIONS } from "./data.js";
 
 /**
- * Exports current inventory state to an authentic multi-sheet Excel file (.xlsx)
- * matching the openpyxl script structure and formatting.
+ * Exports current PEMS-UZ application state to an official multi-sheet Excel file (.xlsx)
+ * covering all modules defined in the Technical Specification (ТЗ).
  */
 export function exportToExcel(state) {
   const wb = XLSX.utils.book_new();
+  const meta = state.projectMetadata;
 
-  // 1. INVENTORY SHEET
-  const invHeaders = [
-    "№ / No.",
-    "Tovar kodi / Item code",
-    "Tovar nomi / Item description",
-    "O'lchov birligi / Unit",
-    "Hudud / Region",
-    "Qabul qiluvchi tashkilot / Receiving institution",
-    "Saqlash joyi / Location",
-    "Mas'ul shaxs / Responsible person",
-    "Hisob miqdori / Book quantity",
-    "Haqiqiy miqdor / Actual quantity",
-    "Ortiqcha / Surplus",
-    "Kamomad / Shortage",
-    "Birlik narxi / Unit price",
-    "Valyuta / Currency",
-    "USD kursi / USD exchange rate",
-    "Hisob qiymati / Book value",
-    "Haqiqiy qiymat / Actual value",
-    "Farq / Difference",
-    "Holati / Condition",
-    "Topshirish hujjati / Handover document",
-    "Izoh / Remarks"
+  // 1. DASHBOARD & SUMMARY SHEET
+  const summaryRows = [
+    ["PEMS-UZ: PROJECT EQUIPMENT MANAGEMENT SYSTEM (UZBEKISTAN)"],
+    ["Система учёта, распределения, поступления, передачи, мониторинга и инвентаризации оборудования (АБР / АБИИ)"],
+    ["Разработчик / Developed by:", meta.developer || "Abdiyev Salimkhon Sanjar ugli"],
+    ["Loyiha / Project:", meta.projectName],
+    ["Asos hujjati / Basis:", meta.presidentialResolution || "PQ-3818 (16.10.2023)"],
+    ["TEO hujjati / Feasibility Study:", meta.teoNumber || "TEO-ADB/AIIB-2023/V4"],
+    ["Buyruq / Order:", meta.orderNo],
+    ["Sana / Date:", meta.inventoryDate],
+    ["Valyuta kursi / Exchange Rate:", `1 USD = ${meta.usdRate || 12850} UZS`],
+    [],
+    ["ASOSIY KO'RSATKICHLAR / KEY PROJECT INDICATORS (PIPELINE RECONCILIATION)"],
+    ["№", "Ko'rsatkich nomi / Indicator", "Miqdori / Quantity", "Birlik / Unit", "Holati / Status"]
   ];
 
+  const teoTotal = (state.teoItems || []).reduce((acc, i) => acc + (Number(i.approvedQty) || 0), 0);
+  const contractedTotal = (state.contracts || []).reduce((acc, c) => acc + (Number(c.quantity) || 0), 0);
+  const deliveredTotal = (state.receipts || []).reduce((acc, r) => acc + (Number(r.deliveredQuantity) || 0), 0);
+  const transferredTotal = (state.handovers || []).reduce((acc, h) => acc + (Number(h.quantity) || 0), 0);
+  const installedTotal = (state.installations || []).filter(i => (i.status || "").includes("O‘rnatilgan") || (i.status || "").includes("Foydalanishga")).length;
+  const commissionedTotal = (state.installations || []).filter(i => (i.status || "").includes("Foydalanishga topshirilgan")).length;
+  const monitoredTotal = (state.monitoringRecords || []).length;
+  const defectsTotal = (state.monitoringRecords || []).filter(m => (m.technicalCondition || "").includes("Nuqsonli") || (m.technicalCondition || "").includes("Ta'mir") || (m.technicalCondition || "").includes("Ishlamaydi")).length;
+  const inventoriedTotal = (state.inventoryItems || state.items || []).reduce((acc, i) => acc + (Number(i.actualQty) || 0), 0);
+  const remainingTotal = Math.max(teoTotal - transferredTotal, 0);
+
+  const kpis = [
+    ["1", "TEO bo'yicha tasdiqlangan uskunalar / Approved in Feasibility Study", teoTotal, "komplekt", "Reja asosida"],
+    ["2", "Shartnomalar bo'yicha xarid qilingan / Contracted Equipment", contractedTotal, "komplekt", "Shartnomalar imzolangan"],
+    ["3", "Fakt bo'yicha yetkazib berilgan (Ombor/Bojxona) / Actual Delivered", deliveredTotal, "komplekt", "УзАСБОда кирим қилинган"],
+    ["4", "Yakuniy tashkilotlarga topshirilgan / Transferred to End-Users", transferredTotal, "komplekt", "Aktlar imzolangan"],
+    ["5", "O'rnatilgan va montaj qilingan / Installed Equipment", installedTotal, "dona", "Ishchi holatda"],
+    ["6", "Foydalanishga to'liq topshirilgan / Commissioned", commissionedTotal, "dona", "Ekspluatatsiyada"],
+    ["7", "GRP tomonidan monitoring qilingan / Monitored by PIU", monitoredTotal, "birlik", "Dala tekshiruvi o'tkazilgan"],
+    ["8", "Aniqlangan nuqsonli / ta'mir talab uskunalar / Defective / Repair", defectsTotal, "birlik", "Kafolat talabnomasi yuborilgan"],
+    ["9", "Inventarizatsiya qilingan uskunalar soni / Inventoried", inventoriedTotal, "birlik", "Auditdan o'tkazildi"],
+    ["10", "Qoldiq (Taqsimlanmagan yoki zaxirada) / Remaining Balance", remainingTotal, "komplekt", "Zaxirada mavjud"]
+  ];
+
+  kpis.forEach(k => summaryRows.push(k));
+  const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+  XLSX.utils.book_append_sheet(wb, wsSummary, "Dashboard_Summary");
+
+  // 2. MODULE 1: TEO DISTRIBUTION SHEET
+  const teoHeaders = [
+    "№", "Prezident qarori / Presidential Resolution", "TEO hujjati / Feasibility Study",
+    "Uskuna kodi / Item code", "Uskuna nomi / Description", "Tasdiqlangan miqdor / Approved Qty",
+    "Hudud / Region", "Qabul qiluvchi tashkilot / Receiving Org", "Rejalashtirilgan / Planned",
+    "Yetkazilgan / Delivered", "Topshirilgan / Transferred", "Qoldiq / Remaining",
+    "Narxi (USD) / Unit Price", "Holati / Status"
+  ];
+  const teoRows = [
+    ["PEMS-UZ: 1. TEO TAQSIMOTI VA REJALASHTIRISH / FEASIBILITY STUDY ALLOCATION"],
+    ["Loyiha:", meta.projectName],
+    teoHeaders
+  ];
+  (state.teoItems || []).forEach((item, idx) => {
+    teoRows.push([
+      idx + 1,
+      item.presidentialDoc || "",
+      item.teoDoc || "",
+      item.itemCode || "",
+      item.itemName || "",
+      item.approvedQty || 0,
+      item.region || "",
+      item.receivingOrg || "",
+      item.plannedQty || 0,
+      item.actualDeliveredQty || 0,
+      item.actualTransferredQty || 0,
+      item.remainingQty || 0,
+      item.unitPriceUsd || 0,
+      item.status || ""
+    ]);
+  });
+  const wsTeo = XLSX.utils.aoa_to_sheet(teoRows);
+  XLSX.utils.book_append_sheet(wb, wsTeo, "1_TEO_Distribution");
+
+  // 3. MODULE 2: CONTRACTS & PROCUREMENT SHEET
+  const cntHeaders = [
+    "№", "Shartnoma № / Contract No", "Sana / Date", "Yetkazib beruvchi / Supplier",
+    "Tovar nomi / Description", "Bir komplekt tarkibi / Components", "Ishlab chiqarilgan yili / Year",
+    "Seriya raqamlari / Serial Range", "Ishlab chiqaruvchi / Manufacturer", "Davlat / Origin",
+    "Model", "Birlik / Unit", "Miqdor / Qty", "Birlik narxi (USD)", "Jami tovar qiymati (USD)",
+    "Birlik narxi (UZS)", "Jami tovar qiymati (UZS)", "Qo'shimcha xizmatlar (USD)",
+    "Logistika (USD)", "Havo transporti (USD)", "Sug'urta (USD)", "Qadoqlash (USD)",
+    "Umumiy shartnoma summasi (USD)", "Kafolat muddati / Warranty", "Holati / Status"
+  ];
+  const cntRows = [
+    ["PEMS-UZ: 2. XARIDLAR VA SHARTNOMALAR / PROCUREMENT & CONTRACTS"],
+    ["Loyiha:", meta.projectName],
+    cntHeaders
+  ];
+  (state.contracts || []).forEach((c, idx) => {
+    cntRows.push([
+      idx + 1,
+      c.contractNo || "",
+      c.contractDate || "",
+      c.supplier || "",
+      c.goodsDescription || "",
+      c.componentsIncluded || "",
+      c.yearOfManufacture || "",
+      c.serialNumberRange || "",
+      c.manufacturer || "",
+      c.countryOfOrigin || "",
+      c.model || "",
+      c.unit || "komplekt",
+      c.quantity || 0,
+      c.unitPriceUsd || 0,
+      c.totalGoodsValueUsd || 0,
+      c.unitPriceUzs || 0,
+      c.totalGoodsValueUzs || 0,
+      c.ancillaryServicesCostUsd || 0,
+      c.domesticLogisticsCostUsd || 0,
+      c.airFreightCostUsd || 0,
+      c.insuranceCostUsd || 0,
+      c.packagingCostUsd || 0,
+      c.totalContractAmountUsd || 0,
+      c.warrantyPeriod || "",
+      c.status || ""
+    ]);
+  });
+  const wsContracts = XLSX.utils.aoa_to_sheet(cntRows);
+  XLSX.utils.book_append_sheet(wb, wsContracts, "2_Contracts_Procurement");
+
+  // 4. MODULE 3: RECEIPTS & UZASBO SHEET
+  const recHeaders = [
+    "№", "Shartnoma №", "Hisob-faktura № / Invoice No", "Hisob-faktura sanasi",
+    "Kelib tushgan sana / Receipt Date", "Bojxona deklaratsiyasi № (ГТД / БЮД)",
+    "Bojxona sanasi", "UzASBO ro'yxatga olish sanasi", "Transfer №", "Transfer sanasi",
+    "Yetkazilgan miqdor", "Tovar tavsifi", "UzASBO schyoti / Account", "UzASBO qiymati (UZS)",
+    "Izoh / Remarks", "Holati / Status"
+  ];
+  const recRows = [
+    ["PEMS-UZ: 3. USKUNALAR KELIB TUSHISHI VA UZASBO HISOBI / RECEIPTS & UZASBO"],
+    ["Loyiha:", meta.projectName],
+    recHeaders
+  ];
+  (state.receipts || []).forEach((r, idx) => {
+    recRows.push([
+      idx + 1,
+      r.contractNo || "",
+      r.invoiceNo || "",
+      r.invoiceDate || "",
+      r.receiptDate || "",
+      r.customsDeclarationNo || "",
+      r.customsClearanceDate || "",
+      r.uzasboRegistrationDate || "",
+      r.transferNo || "",
+      r.transferDate || "",
+      r.deliveredQuantity || 0,
+      r.goodsDescription || "",
+      r.uzasboAccountCode || "",
+      r.uzasboBookValueUzs || 0,
+      r.remarks || "",
+      r.status || ""
+    ]);
+  });
+  const wsReceipts = XLSX.utils.aoa_to_sheet(recRows);
+  XLSX.utils.book_append_sheet(wb, wsReceipts, "3_Receipts_UzASBO");
+
+  // 5. MODULE 4: HANDOVERS & TRANSFERS SHEET
+  const hoHeaders = [
+    "№", "Transfer №", "Transfer sanasi", "Dalolatnoma № / Handover Act No", "Dalolatnoma sanasi",
+    "Viloyat / Region", "Tuman (shahar) / District", "Qabul qiluvchi tashkilot / Receiving Org",
+    "STIR / TIN", "Bo'linma / Laboratoriya", "Manzili / Address", "Uskuna kodi",
+    "Uskuna nomi", "Seriya raqami", "Inventar raqami", "Miqdori", "Birligi",
+    "Umumiy qiymat (USD)", "Umumiy qiymat (UZS)", "Moddiy javobgar shaxs (F.I.Sh.)",
+    "Topshiruvchi", "Qabul qiluvchi", "Holati", "Asos hujjati", "Izoh"
+  ];
+  const hoRows = [
+    ["PEMS-UZ: 4. USKUNALARNI TOPSHIRISH VA TRANSFER REYESTRI / HANDOVER & TRANSFER"],
+    ["Loyiha:", meta.projectName],
+    hoHeaders
+  ];
+  (state.handovers || []).forEach((h, idx) => {
+    hoRows.push([
+      idx + 1,
+      h.transferNo || "",
+      h.transferDate || "",
+      h.docNo || "",
+      h.date || "",
+      h.region || "",
+      h.district || "",
+      h.institution || "",
+      h.tin || "",
+      h.department || "",
+      h.address || "",
+      h.itemCode || "",
+      h.itemDescription || "",
+      h.serialNumber || "",
+      h.inventoryNumber || "",
+      h.quantity || 0,
+      h.unit || "komplekt",
+      h.totalValueUsd || 0,
+      h.totalValueUzs || 0,
+      h.responsiblePerson || "",
+      h.transferor || "",
+      h.recipientName || "",
+      h.condition || "",
+      h.supportingDoc || "",
+      h.remarks || ""
+    ]);
+  });
+  const wsHandovers = XLSX.utils.aoa_to_sheet(hoRows);
+  XLSX.utils.book_append_sheet(wb, wsHandovers, "4_Handovers_Transfers");
+
+  // 6. MODULE 5: INSTALLATION & COMMISSIONING SHEET
+  const instHeaders = [
+    "№", "Dalolatnoma №", "Uskuna kodi", "Uskuna nomi", "Seriya raqami", "Tashkilot",
+    "Hudud", "O'rnatish holati / Status", "O'rnatish sanasi", "Montaj tugatilgan sana",
+    "Sinov sanasi", "Sinov natijasi / Test Results", "Foydalanishga topshirish sanasi",
+    "Ekspluatatsiya dalolatnoma №", "Dalolatnoma sanasi", "Yetkazib beruvchi mutaxassisi",
+    "O'qitish o'tkazilganligi / Training", "Izoh / Remarks"
+  ];
+  const instRows = [
+    ["PEMS-UZ: 5. O'RNATISH VA FOYDALANISHGA TOPSHIRISH / INSTALLATION & COMMISSIONING"],
+    ["Loyiha:", meta.projectName],
+    instHeaders
+  ];
+  (state.installations || []).forEach((i, idx) => {
+    instRows.push([
+      idx + 1,
+      i.handoverDocNo || "",
+      i.itemCode || "",
+      i.equipmentName || "",
+      i.serialNumber || "",
+      i.organization || "",
+      i.region || "",
+      i.status || "",
+      i.installationDate || "",
+      i.completionDate || "",
+      i.testingDate || "",
+      i.testingResults || "",
+      i.commissioningDate || "",
+      i.commissioningCertNo || "",
+      i.commissioningCertDate || "",
+      i.supplierSpecialist || "",
+      i.trainingCompleted || "",
+      i.remarks || ""
+    ]);
+  });
+  const wsInst = XLSX.utils.aoa_to_sheet(instRows);
+  XLSX.utils.book_append_sheet(wb, wsInst, "5_Installation_Commissioning");
+
+  // 7. MODULE 6: PIU MONITORING SHEET
+  const monHeaders = [
+    "№", "Monitoring sanasi", "Tashkilot nomi", "Hudud", "Uskuna nomi",
+    "Seriya raqami", "Inventar raqami", "Haqiqiy joylashgan joyi", "Haqiqiy mavjudligi",
+    "Ekspluatatsiya holati", "Texnik holati (8 status)", "Aniqlangan nuqsonlar / Specific Defects",
+    "Foto-ilova", "Aniqlangan kamchiliklar", "Tavsiyalar va muddatlar",
+    "Monitoring natijasi", "Monitoring o'tkazgan mas'ul shaxs"
+  ];
+  const monRows = [
+    ["PEMS-UZ: 6. GRP TOMONIDAN USKUNALAR MONITORINGI / PIU MONITORING"],
+    ["Loyiha:", meta.projectName],
+    monHeaders
+  ];
+  (state.monitoringRecords || []).forEach((m, idx) => {
+    monRows.push([
+      idx + 1,
+      m.monitoringDate || "",
+      m.monitoredOrg || "",
+      m.region || "",
+      m.equipmentName || "",
+      m.serialNumber || "",
+      m.inventoryNumber || "",
+      m.actualLocation || "",
+      m.physicalAvailability || "",
+      m.commissioningStatus || "",
+      m.technicalCondition || "",
+      m.identifiedDefects || "",
+      m.photoEvidence || "",
+      m.identifiedIssues || "",
+      m.recommendations || "",
+      m.monitoringResult || "",
+      m.monitoringOfficer || ""
+    ]);
+  });
+  const wsMon = XLSX.utils.aoa_to_sheet(monRows);
+  XLSX.utils.book_append_sheet(wb, wsMon, "6_PIU_Monitoring");
+
+  // 8. MODULE 7: INVENTORY AUDIT & DISCREPANCIES SHEET
+  const invHeaders = [
+    "№", "Uskuna kodi", "Uskuna nomi", "Seriya raqami", "Inventar raqami",
+    "O'lchov birligi", "Hudud", "Tashkilot", "Saqlash joyi / Joylashuvi",
+    "Mas'ul shaxs", "Hisob miqdori (Kitob bo'yicha)", "Haqiqiy miqdor (Mavjud)",
+    "Ortiqcha", "Kamomad", "Birlik narxi", "Valyuta", "USD kursi",
+    "Hisob qiymati", "Haqiqiy qiymat", "Farq (Balans)", "Texnik holati",
+    "Topshirish hujjati (Akt №)", "Transfer №", "Izoh"
+  ];
   const invRows = [
-    ["LOYIHA YAKUNIY INVENTARIZATSIYASI / PROJECT CLOSURE INVENTORY"],
-    ["Loyiha / Project:", state.projectMetadata.projectName],
-    ["Buyruq raqami va sanasi / Order No. and date:", state.projectMetadata.orderNo],
-    ["Inventarizatsiya sanasi / Inventory date:", state.projectMetadata.inventoryDate],
-    ["Eslatma / Note: USD kursini tegishli sana uchun kiriting (" + state.projectMetadata.usdRate + ")."],
+    ["PEMS-UZ: 7. ASOSIY VOSITALAR INVENTARIZATSIYA REYESTRI / INVENTORY AUDIT"],
+    ["Loyiha / Project:", meta.projectName],
+    ["Buyruq / Order:", meta.orderNo],
+    ["Inventarizatsiya sanasi:", meta.inventoryDate],
+    [
+      "Eslatma: Система учёта в рамках проекта АБР / АБИИ. Dev: " +
+        (meta.developer || "Abdiyev Salimkhon Sanjar ugli") +
+        " | 1 USD = " +
+        (meta.usdRate || 12850) +
+        " UZS"
+    ],
     invHeaders
   ];
 
-  state.items.forEach((item, idx) => {
+  const items = state.inventoryItems || state.items || [];
+  items.forEach((item, idx) => {
     const bookQty = Number(item.bookQty) || 0;
     const actualQty = Number(item.actualQty) || 0;
     const unitPrice = Number(item.unitPrice) || 0;
     const surplus = Math.max(actualQty - bookQty, 0);
     const shortage = Math.max(bookQty - actualQty, 0);
-    const bookValue = bookQty * unitPrice;
-    const actualValue = actualQty * unitPrice;
-    const diff = actualValue - bookValue;
+    const bookVal = bookQty * unitPrice;
+    const actualVal = actualQty * unitPrice;
+    const diff = actualVal - bookVal;
 
     invRows.push([
       idx + 1,
       item.code || "",
       item.description || "",
-      item.unit || "dona",
+      item.serialNumber || "",
+      item.inventoryNumber || "",
+      item.unit || "komplekt",
       item.region || "",
       item.institution || "",
       item.location || "",
@@ -66,278 +341,45 @@ export function exportToExcel(state) {
       surplus,
       shortage,
       unitPrice,
-      item.currency || "UZS",
-      Number(state.projectMetadata.usdRate) || 12850,
-      bookValue,
-      actualValue,
+      item.currency || "USD",
+      Number(meta.usdRate) || 12850,
+      bookVal,
+      actualVal,
       diff,
-      item.condition || "Yaxshi / Good",
+      item.condition || "Ishga yaroqli",
       item.handoverDoc || "",
+      item.transferNo || "",
       item.remarks || ""
     ]);
   });
-
   const wsInv = XLSX.utils.aoa_to_sheet(invRows);
+  XLSX.utils.book_append_sheet(wb, wsInv, "7_Inventory_Audit");
 
-  // Set column widths for Inventory sheet
-  wsInv["!cols"] = [
-    { wch: 8 },  // A
-    { wch: 18 }, // B
-    { wch: 36 }, // C
-    { wch: 12 }, // D
-    { wch: 32 }, // E
-    { wch: 32 }, // F
-    { wch: 24 }, // G
-    { wch: 26 }, // H
-    { wch: 16 }, // I
-    { wch: 16 }, // J
-    { wch: 14 }, // K
-    { wch: 14 }, // L
-    { wch: 18 }, // M
-    { wch: 12 }, // N
-    { wch: 16 }, // O
-    { wch: 20 }, // P
-    { wch: 20 }, // Q
-    { wch: 18 }, // R
-    { wch: 20 }, // S
-    { wch: 24 }, // T
-    { wch: 30 }  // U
+  // 9. AUDIT LOG SHEET
+  const logHeaders = ["№", "Vaqti / Timestamp", "Foydalanuvchi / User", "Modul / Module", "Amal / Action", "Obyekt / Entity", "Batafsil / Details", "Eski qiymat / Old", "Yangi qiymat / New"];
+  const logRows = [
+    ["PEMS-UZ: 9. TIZIM OPERATSIYALARI JURNALI / SYSTEM AUDIT TRAIL"],
+    ["Loyiha:", meta.projectName],
+    logHeaders
   ];
-
-  XLSX.utils.book_append_sheet(wb, wsInv, "Inventory");
-
-  // 2. REGIONAL SUMMARY SHEET
-  const regHeaders = [
-    "Hudud / Region",
-    "Pozitsiyalar / Items",
-    "Hisob miqdori / Book qty",
-    "Haqiqiy miqdor / Actual qty",
-    "Ortiqcha / Surplus",
-    "Kamomad / Shortage",
-    "UZS qiymati / UZS value",
-    "USD qiymati / USD value"
-  ];
-
-  const regRows = [
-    ["Hududlar bo'yicha jamlanma / Regional Summary"],
-    regHeaders
-  ];
-
-  UZBEKISTAN_REGIONS.forEach((region) => {
-    const regionItems = state.items.filter((it) => it.region === region);
-    const count = regionItems.length;
-    let bQty = 0;
-    let aQty = 0;
-    let surplus = 0;
-    let shortage = 0;
-    let uzsVal = 0;
-    let usdVal = 0;
-
-    regionItems.forEach((it) => {
-      const b = Number(it.bookQty) || 0;
-      const a = Number(it.actualQty) || 0;
-      const price = Number(it.unitPrice) || 0;
-      bQty += b;
-      aQty += a;
-      surplus += Math.max(a - b, 0);
-      shortage += Math.max(b - a, 0);
-
-      const actVal = a * price;
-      if (it.currency === "USD") {
-        usdVal += actVal;
-      } else {
-        uzsVal += actVal;
-      }
-    });
-
-    regRows.push([
-      region,
-      count,
-      bQty,
-      aQty,
-      surplus,
-      shortage,
-      uzsVal,
-      usdVal
+  (state.auditLogs || []).forEach((l, idx) => {
+    logRows.push([
+      idx + 1,
+      l.timestamp || "",
+      l.userName || "",
+      l.module || "",
+      l.action || "",
+      l.entityId || "",
+      l.details || "",
+      l.oldValue || "",
+      l.newValue || ""
     ]);
   });
+  const wsLogs = XLSX.utils.aoa_to_sheet(logRows);
+  XLSX.utils.book_append_sheet(wb, wsLogs, "8_System_Audit_Log");
 
-  const wsReg = XLSX.utils.aoa_to_sheet(regRows);
-  wsReg["!cols"] = [
-    { wch: 48 },
-    { wch: 18 },
-    { wch: 18 },
-    { wch: 18 },
-    { wch: 16 },
-    { wch: 16 },
-    { wch: 22 },
-    { wch: 20 }
-  ];
-  XLSX.utils.book_append_sheet(wb, wsReg, "Regional Summary");
-
-  // 3. DISCREPANCIES SHEET
-  const discHeaders = [
-    "Item code",
-    "Item description",
-    "Region",
-    "Institution",
-    "Book qty",
-    "Actual qty",
-    "Surplus",
-    "Shortage",
-    "Difference value",
-    "Condition",
-    "Explanation / Izoh",
-    "Corrective action / Chora",
-    "Responsible person"
-  ];
-
-  const discRows = [
-    ["Tafovutlar qaydnomasi / Discrepancy Register"],
-    discHeaders
-  ];
-
-  state.items.forEach((item) => {
-    const b = Number(item.bookQty) || 0;
-    const a = Number(item.actualQty) || 0;
-    const surplus = Math.max(a - b, 0);
-    const shortage = Math.max(b - a, 0);
-
-    if (surplus > 0 || shortage > 0) {
-      const price = Number(item.unitPrice) || 0;
-      const diffVal = (a - b) * price;
-      const extra = state.discrepanciesExtras[item.id] || {};
-
-      discRows.push([
-        item.code || "",
-        item.description || "",
-        item.region || "",
-        item.institution || "",
-        b,
-        a,
-        surplus,
-        shortage,
-        `${diffVal > 0 ? "+" : ""}${diffVal.toLocaleString()} ${item.currency}`,
-        item.condition || "",
-        extra.explanation || item.remarks || "",
-        extra.correctiveAction || (surplus > 0 ? "Kirim qilish" : "Hisobdan chiqarish / Servisga yuborish"),
-        extra.responsiblePerson || item.responsiblePerson || ""
-      ]);
-    }
-  });
-
-  const wsDisc = XLSX.utils.aoa_to_sheet(discRows);
-  wsDisc["!cols"] = [
-    { wch: 18 },
-    { wch: 36 },
-    { wch: 30 },
-    { wch: 30 },
-    { wch: 14 },
-    { wch: 14 },
-    { wch: 14 },
-    { wch: 14 },
-    { wch: 22 },
-    { wch: 20 },
-    { wch: 36 },
-    { wch: 36 },
-    { wch: 26 }
-  ];
-  XLSX.utils.book_append_sheet(wb, wsDisc, "Discrepancies");
-
-  // 4. HANDOVER REGISTER SHEET
-  const hoHeaders = [
-    "Date / Sana",
-    "Document No. / Hujjat №",
-    "Item code / Tovar kodi",
-    "Item description / Tovar nomi",
-    "Quantity / Miqdor",
-    "Unit / Birlik",
-    "Region / Hudud",
-    "Receiving institution / Qabul qiluvchi",
-    "Recipient name / Qabul qiluvchi vakili",
-    "Transferor / Topshiruvchi",
-    "Condition / Holati",
-    "Supporting document / Asos hujjati",
-    "Signatures / Imzolar",
-    "Remarks / Izoh"
-  ];
-
-  const hoRows = [
-    ["Topshirish-qabul qilish reyestri / Handover Register"],
-    hoHeaders
-  ];
-
-  state.handoverRecords.forEach((rec) => {
-    hoRows.push([
-      rec.date || "",
-      rec.docNo || "",
-      rec.itemCode || "",
-      rec.itemDescription || "",
-      rec.quantity || 0,
-      rec.unit || "dona",
-      rec.region || "",
-      rec.institution || "",
-      rec.recipientName || "",
-      rec.transferor || "",
-      rec.condition || "",
-      rec.supportingDoc || "",
-      rec.signatures || "Tasdiqlangan",
-      rec.remarks || ""
-    ]);
-  });
-
-  const wsHo = XLSX.utils.aoa_to_sheet(hoRows);
-  wsHo["!cols"] = [
-    { wch: 16 },
-    { wch: 18 },
-    { wch: 18 },
-    { wch: 34 },
-    { wch: 14 },
-    { wch: 12 },
-    { wch: 28 },
-    { wch: 32 },
-    { wch: 26 },
-    { wch: 26 },
-    { wch: 20 },
-    { wch: 28 },
-    { wch: 20 },
-    { wch: 30 }
-  ];
-  XLSX.utils.book_append_sheet(wb, wsHo, "Handover");
-
-  // 5. COMMITTEE SHEET
-  const commRows = [
-    ["Inventarizatsiya komissiyasi / Inventory Committee"],
-    ["Loyiha / Project", state.committee.projectName || state.projectMetadata.projectName],
-    ["Tashkilot / Organization", state.committee.organization || state.projectMetadata.organization],
-    ["Buyruq raqami / Order No.", state.committee.orderNo || state.projectMetadata.orderNo],
-    ["Boshlanish sanasi / Start date", state.committee.startDate || ""],
-    ["Tugash sanasi / End date", state.committee.endDate || state.projectMetadata.inventoryDate],
-    [],
-    ["Lavozim / Role", "F.I.Sh. / Full name", "Imzo / Signature", "Sana / Date"]
-  ];
-
-  state.committee.members.forEach((m) => {
-    commRows.push([m.role, m.name, m.signature || "", m.date || ""]);
-  });
-
-  commRows.push([]);
-  commRows.push(["Xulosa / Conclusion", state.committee.conclusion || ""]);
-  commRows.push(["Aniqlangan tafovutlar / Discrepancies identified", state.committee.discrepanciesIdentified || ""]);
-  commRows.push(["Tavsiya etilgan choralar / Recommended actions", state.committee.recommendedActions || ""]);
-  commRows.push(["Rahbar qarori / Management decision", state.committee.managementDecision || ""]);
-
-  const wsComm = XLSX.utils.aoa_to_sheet(commRows);
-  wsComm["!cols"] = [
-    { wch: 42 },
-    { wch: 34 },
-    { wch: 22 },
-    { wch: 18 }
-  ];
-  XLSX.utils.book_append_sheet(wb, wsComm, "Committee");
-
-  // Trigger browser download
-  const filename = "Project_Inventory_UZ_EN.xlsx";
+  // Auto-trigger browser download
+  const filename = "PEMS_UZ_Equipment_Registry_ADB_AIIB.xlsx";
   XLSX.writeFile(wb, filename);
 }
 
@@ -353,30 +395,41 @@ export async function parseExcelFile(file) {
         const wb = XLSX.read(data, { type: "array" });
 
         const parsedItems = [];
-        const invSheet = wb.Sheets["Inventory"];
+        const invSheet = wb.Sheets["7_Inventory_Audit"] || wb.Sheets["Inventory"];
         if (invSheet) {
           const rows = XLSX.utils.sheet_to_json(invSheet, { header: 1 });
-          // Header row is index 5 (row 6)
-          // Data starts index 6 (row 7)
-          for (let r = 6; r < rows.length; r++) {
+          const headerIdx = rows.findIndex(
+            (r) =>
+              r &&
+              (r[0] === "№ / No." ||
+                r[0] === "№" ||
+                String(r[1] || "").includes("Tovar kodi") ||
+                String(r[1] || "").includes("Uskuna kodi") ||
+                String(r[1] || "").includes("Item code"))
+          );
+          const startRow = headerIdx >= 0 ? headerIdx + 1 : 6;
+          for (let r = startRow; r < rows.length; r++) {
             const row = rows[r];
-            if (!row || !row[1]) continue; // item code
+            if (!row || !row[1]) continue;
             parsedItems.push({
               id: "item-" + Date.now() + "-" + r,
               code: String(row[1] || "").trim(),
               description: String(row[2] || "").trim(),
-              unit: String(row[3] || "dona").trim(),
-              region: String(row[4] || "").trim(),
-              institution: String(row[5] || "").trim(),
-              location: String(row[6] || "").trim(),
-              responsiblePerson: String(row[7] || "").trim(),
-              bookQty: Number(row[8]) || 0,
-              actualQty: Number(row[9]) || 0,
-              unitPrice: Number(row[12]) || 0,
-              currency: String(row[13] || "UZS").trim().toUpperCase(),
-              condition: String(row[18] || "Yaxshi / Good").trim(),
-              handoverDoc: String(row[19] || "").trim(),
-              remarks: String(row[20] || "").trim()
+              serialNumber: String(row[3] || "").trim(),
+              inventoryNumber: String(row[4] || "").trim(),
+              unit: String(row[5] || "komplekt").trim(),
+              region: String(row[6] || "").trim(),
+              institution: String(row[7] || "").trim(),
+              location: String(row[8] || "").trim(),
+              responsiblePerson: String(row[9] || "").trim(),
+              bookQty: Number(row[10]) || 0,
+              actualQty: Number(row[11]) || 0,
+              unitPrice: Number(row[14]) || 0,
+              currency: String(row[15] || "USD").trim().toUpperCase(),
+              condition: String(row[20] || "Ishga yaroqli").trim(),
+              handoverDoc: String(row[21] || "").trim(),
+              transferNo: String(row[22] || "").trim(),
+              remarks: String(row[23] || "").trim()
             });
           }
         }

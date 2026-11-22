@@ -3,8 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Loyiha Yakuniy Inventarizatsiyasi / Project Closure Inventory</title>
-    <meta name="description" content="Loyiha yakuniy inventarizatsiyasi, hududiy jamlanma, tafovutlar qaydnomasi va topshirish-qabul qilish elektron tizimi" />
+    <title>PEMS-UZ | Project Equipment Management System (Uzbekistan)</title>
+    <meta name="description" content="PEMS-UZ - Project Equipment Management System Uzbekistan. Система учёта, распределения, поступления, передачи, мониторинга и инвентаризации оборудования в рамках проектов АБР и АБИИ." />
+    <meta name="author" content="Abdiyev Salimkhon Sanjar ugli" />
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,53 +19,82 @@
         <div class="header-top">
           <div class="brand-group">
             <div class="logo-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                 <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
                 <line x1="12" y1="22.08" x2="12" y2="12"></line>
               </svg>
             </div>
             <div class="brand-titles">
-              <h1 class="brand-main">LOYIHA YAKUNIY INVENTARIZATSIYASI</h1>
-              <p class="brand-sub">PROJECT CLOSURE INVENTORY SYSTEM &bull; UZ / EN</p>
+              <div class="brand-badges-row">
+                <span class="badge-pems">PEMS-UZ</span>
+                <span class="badge-country">UZBEKISTAN</span>
+                <span class="badge-funder">АБР / АБИИ (ADB / AIIB)</span>
+                <span class="badge-dev">developed by: <strong>Abdiyev Salimkhon Sanjar ugli</strong></span>
+              </div>
+              <h1 class="brand-main" id="ui-brand-main">PROJECT EQUIPMENT MANAGEMENT SYSTEM</h1>
+              <p class="brand-sub" id="ui-brand-sub">Система учёта, распределения, поступления, передачи, мониторинга и инвентаризации оборудования в рамках проектов АБР / АБИИ</p>
             </div>
           </div>
 
           <div class="header-actions">
+            <!-- Language Selector -->
+            <div class="lang-switch-group">
+              <button class="lang-pill" data-lang="uz">UZ</button>
+              <button class="lang-pill active" data-lang="ru">RU</button>
+              <button class="lang-pill" data-lang="en">EN</button>
+            </div>
+
+            <!-- Role Selector (RBAC) -->
+            <div class="role-selector-wrap" title="Пользовательская роль и права доступа">
+              <span class="role-label" id="ui-lbl-role">Роль:</span>
+              <select id="user-role-select" class="role-dropdown">
+                <option value="admin">Administrator (Барча ҳуқуқлар)</option>
+                <option value="grp_mgmt">GRP Management (Раҳбарият)</option>
+                <option value="grp_procurement">GRP Procurement (Харидлар)</option>
+                <option value="grp_equipment">GRP Equipment (Ускуналар ва УзАСБО)</option>
+                <option value="grp_monitoring">GRP Monitoring (Мониторинг)</option>
+                <option value="inventory_comm">Inventory Commission (Комиссия)</option>
+                <option value="regional_user">Regional User (Ҳудудий вакил)</option>
+                <option value="receiving_org">Receiving Org (Лаборатория)</option>
+              </select>
+              <span class="user-badge" id="current-role-badge">ADMIN</span>
+            </div>
+
             <button id="btn-export-excel" class="btn btn-primary" title="Excel faylni yuklab olish (.xlsx)">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>
                 <line x1="12" y1="15" x2="12" y2="3"></line>
               </svg>
-              <span>Eksport / Export Excel (.xlsx)</span>
+              <span id="ui-btn-export">Export Excel (.xlsx)</span>
             </button>
 
             <label for="excel-file-input" class="btn btn-secondary" title="Mavjud Excel faylni yuklash">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="17 8 12 3 7 8"></polyline>
                 <line x1="12" y1="3" x2="12" y2="15"></line>
               </svg>
-              <span>Import Excel</span>
+              <span id="ui-btn-import">Import Excel</span>
               <input type="file" id="excel-file-input" accept=".xlsx, .xls" style="display: none;" />
             </label>
 
             <button id="btn-add-item-modal" class="btn btn-accent">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
-              <span>+ Yangi tovar / Add Item</span>
+              <span id="ui-btn-add">+ Добавить запись</span>
             </button>
 
             <button id="btn-reset-data" class="btn btn-ghost" title="Namunaviy ma'lumotlarni qayta tiklash">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="1 4 1 10 7 10"></polyline>
                 <polyline points="23 20 23 14 17 14"></polyline>
                 <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
               </svg>
-              <span>Qayta tiklash / Reset</span>
+              <span id="ui-btn-reset">Сброс</span>
             </button>
           </div>
         </div>
@@ -72,19 +102,23 @@
         <!-- Project Meta Strip -->
         <div class="project-meta-strip">
           <div class="meta-field">
-            <span class="meta-label">Loyiha / Project:</span>
-            <input type="text" id="meta-project-name" class="meta-input" value="" placeholder="Loyiha nomini kiriting..." />
+            <span class="meta-label">Постановление Президента:</span>
+            <input type="text" id="meta-presidential" class="meta-input" value="PQ-3818 (16.10.2023)" placeholder="№ и дата..." />
           </div>
           <div class="meta-field">
-            <span class="meta-label">Buyruq / Order:</span>
-            <input type="text" id="meta-order-no" class="meta-input" value="" placeholder="Buyruq raqami va sanasi..." />
+            <span class="meta-label">ТЭО проекта:</span>
+            <input type="text" id="meta-teo" class="meta-input" value="TEO-ADB/AIIB-2023/V4" placeholder="№ ТЭО..." />
           </div>
           <div class="meta-field">
-            <span class="meta-label">Sana / Date:</span>
-            <input type="date" id="meta-inv-date" class="meta-input date-input" value="" />
+            <span class="meta-label">Приказ ГРП:</span>
+            <input type="text" id="meta-order-no" class="meta-input" value="№ 42-Buyruq, 15.01.2026" />
+          </div>
+          <div class="meta-field">
+            <span class="meta-label">Дата:</span>
+            <input type="date" id="meta-inv-date" class="meta-input date-input" value="2026-02-12" />
           </div>
           <div class="meta-field rate-field">
-            <span class="meta-label">USD kursi / Rate:</span>
+            <span class="meta-label">Курс USD:</span>
             <div class="rate-input-wrap">
               <span class="rate-symbol">$1 =</span>
               <input type="number" id="meta-usd-rate" class="meta-input number-input" value="12850" min="1" step="10" />
@@ -93,751 +127,770 @@
           </div>
         </div>
 
-        <!-- Tabs Navigation -->
+        <!-- Tabs Navigation (10 Modules from ТЗ) -->
         <nav class="tabs-nav" role="tablist">
-          <button class="tab-btn active" data-tab="tab-inventory" role="tab" id="nav-inventory">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="16" y1="13" x2="8" y2="13"></line>
-              <line x1="16" y1="17" x2="8" y2="17"></line>
-              <polyline points="10 9 9 9 8 9"></polyline>
-            </svg>
-            <span>1. Asosiy inventarizatsiya / Main Inventory</span>
-            <span class="tab-badge" id="badge-total-items">0</span>
+          <button class="tab-btn active" data-tab="tab-dashboard" role="tab" id="nav-dashboard">
+            <span>📊 Главная панель / Dashboard</span>
           </button>
-
-          <button class="tab-btn" data-tab="tab-regional" role="tab" id="nav-regional">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="2" y1="12" x2="22" y2="12"></line>
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-            </svg>
-            <span>2. Hududlar jamlanmasi / Regional Summary</span>
-            <span class="tab-badge">14 hudud</span>
+          <button class="tab-btn" data-tab="tab-teo" role="tab" id="nav-teo">
+            <span>📜 1. ТЭО и Распределение</span>
+            <span class="tab-badge" id="badge-teo-count">6</span>
           </button>
-
-          <button class="tab-btn" data-tab="tab-discrepancies" role="tab" id="nav-discrepancies">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
-              <line x1="12" y1="9" x2="12" y2="13"></line>
-              <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-            <span>3. Tafovutlar qaydnomasi / Discrepancies</span>
-            <span class="tab-badge alert-badge" id="badge-discrepancies-count">0</span>
+          <button class="tab-btn" data-tab="tab-contracts" role="tab" id="nav-contracts">
+            <span>📑 2. Закупки и контракты</span>
+            <span class="tab-badge" id="badge-contracts-count">4</span>
           </button>
-
-          <button class="tab-btn" data-tab="tab-handover" role="tab" id="nav-handover">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-              <path d="m9 14 2 2 4-4"></path>
-            </svg>
-            <span>4. Topshirish-qabul qilish / Handover</span>
-            <span class="tab-badge" id="badge-handover-count">0</span>
+          <button class="tab-btn" data-tab="tab-receipts" role="tab" id="nav-receipts">
+            <span>📦 3. Поступление и УзАСБО</span>
+            <span class="tab-badge" id="badge-receipts-count">4</span>
           </button>
-
-          <button class="tab-btn" data-tab="tab-committee" role="tab" id="nav-committee">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-            </svg>
-            <span>5. Komissiya va imzolar / Committee</span>
-            <span class="tab-badge success-badge">Tayyor</span>
+          <button class="tab-btn" data-tab="tab-handovers" role="tab" id="nav-handovers">
+            <span>🚚 4. Передача и Transfer</span>
+            <span class="tab-badge" id="badge-handovers-count">5</span>
+          </button>
+          <button class="tab-btn" data-tab="tab-installations" role="tab" id="nav-installations">
+            <span>⚙️ 5. Установка и ввод</span>
+            <span class="tab-badge" id="badge-install-count">5</span>
+          </button>
+          <button class="tab-btn" data-tab="tab-monitoring" role="tab" id="nav-monitoring">
+            <span>🔍 6. Мониторинг ГРП</span>
+            <span class="tab-badge alert-badge" id="badge-monitoring-count">4</span>
+          </button>
+          <button class="tab-btn" data-tab="tab-inventory" role="tab" id="nav-inventory">
+            <span>📋 7. Инвентаризация</span>
+            <span class="tab-badge" id="badge-inventory-count">8</span>
+          </button>
+          <button class="tab-btn" data-tab="tab-reports" role="tab" id="nav-reports">
+            <span>📈 8. Отчёты и аналитика (13 отчётов)</span>
+          </button>
+          <button class="tab-btn" data-tab="tab-directory" role="tab" id="nav-directory">
+            <span>🗂 9. Паспорта и Аудит</span>
           </button>
         </nav>
       </header>
 
-      <!-- Main Content Area -->
-      <main class="app-main">
-        <!-- TAB 1: INVENTORY -->
-        <section id="tab-inventory" class="tab-content active" role="tabpanel">
-          <!-- KPI Summary Cards -->
-          <div class="kpi-grid">
-            <div class="kpi-card">
-              <div class="kpi-icon-wrap bg-navy">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M20 7h-9m9 5h-9m9 5h-9M4 7h.01M4 12h.01M4 17h.01"></path>
+      <!-- Main Content Container -->
+      <main class="main-content">
+        <!-- ============================================================== -->
+        <!-- TAB 0: DASHBOARD & LIFECYCLE FUNNEL -->
+        <!-- ============================================================== -->
+        <section id="tab-dashboard" class="tab-content active">
+          <!-- Lifecycle Funnel Bar (ТЗ Section 14) -->
+          <div class="pipeline-card">
+            <div class="pipeline-header">
+              <span class="pipeline-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
                 </svg>
-              </div>
-              <div class="kpi-content">
-                <span class="kpi-label">Jami pozitsiyalar / Total Items</span>
-                <span class="kpi-value" id="kpi-total-items">0</span>
-                <span class="kpi-sub" id="kpi-total-units">0 dona/birlik</span>
-              </div>
+                <span>СКВОЗНОЙ ЖИЗНЕННЫЙ ЦИКЛ ОБОРУДОВАНИЯ / LIFECYCLE RECONCILIATION PIPELINE</span>
+              </span>
+              <span class="chip chip-info">Контроль соответствия объёмов (АБР / АБИИ)</span>
             </div>
-
-            <div class="kpi-card">
-              <div class="kpi-icon-wrap bg-blue">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="12" y1="1" x2="12" y2="23"></line>
-                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                </svg>
+            <div class="pipeline-flow">
+              <div class="pipeline-step">
+                <span class="pipeline-step-num">Этап 1</span>
+                <span class="pipeline-step-name">Утверждено по ТЭО</span>
+                <span class="pipeline-step-val" id="pipe-val-teo">0</span>
+                <span class="pipeline-step-sub">Постановление Президента</span>
               </div>
-              <div class="kpi-content">
-                <span class="kpi-label">Hisob qiymati / Book Value</span>
-                <span class="kpi-value" id="kpi-book-val-uzs">0 UZS</span>
-                <span class="kpi-sub" id="kpi-book-val-usd">$0 USD</span>
+              <div class="pipeline-step">
+                <span class="pipeline-step-num">Этап 2</span>
+                <span class="pipeline-step-name">Законтрактовано</span>
+                <span class="pipeline-step-val" id="pipe-val-contracts">0</span>
+                <span class="pipeline-step-sub">Контракты с поставщиками</span>
               </div>
-            </div>
-
-            <div class="kpi-card">
-              <div class="kpi-icon-wrap bg-indigo">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                </svg>
+              <div class="pipeline-step">
+                <span class="pipeline-step-num">Этап 3</span>
+                <span class="pipeline-step-name">Поступило / УзАСБО</span>
+                <span class="pipeline-step-val" id="pipe-val-receipts">0</span>
+                <span class="pipeline-step-sub">Таможня + ГТД</span>
               </div>
-              <div class="kpi-content">
-                <span class="kpi-label">Haqiqiy qiymat / Actual Value</span>
-                <span class="kpi-value" id="kpi-actual-val-uzs">0 UZS</span>
-                <span class="kpi-sub" id="kpi-actual-val-usd">$0 USD</span>
+              <div class="pipeline-step">
+                <span class="pipeline-step-num">Этап 4</span>
+                <span class="pipeline-step-name">Передано (Transfer)</span>
+                <span class="pipeline-step-val" id="pipe-val-transferred">0</span>
+                <span class="pipeline-step-sub">Акты приёма-передачи</span>
               </div>
-            </div>
-
-            <div class="kpi-card">
-              <div class="kpi-icon-wrap" id="kpi-diff-icon-wrap">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-                  <polyline points="17 6 23 6 23 12"></polyline>
-                </svg>
+              <div class="pipeline-step">
+                <span class="pipeline-step-num">Этап 5</span>
+                <span class="pipeline-step-name">Установлено (Монтаж)</span>
+                <span class="pipeline-step-val" id="pipe-val-installed">0</span>
+                <span class="pipeline-step-sub">Специалист поставщика</span>
               </div>
-              <div class="kpi-content">
-                <span class="kpi-label">Tafovut balansi / Net Diff</span>
-                <span class="kpi-value" id="kpi-diff-val">0 UZS</span>
-                <span class="kpi-sub" id="kpi-diff-sub">Farq yo'q</span>
+              <div class="pipeline-step">
+                <span class="pipeline-step-num">Этап 6</span>
+                <span class="pipeline-step-name">Введено в экспл.</span>
+                <span class="pipeline-step-val" id="pipe-val-commissioned">0</span>
+                <span class="pipeline-step-sub">Акт ввода + Обучение</span>
               </div>
-            </div>
-
-            <div class="kpi-card">
-              <div class="kpi-icon-wrap bg-amber">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="8" x2="12" y2="12"></line>
-                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                </svg>
+              <div class="pipeline-step">
+                <span class="pipeline-step-num">Этап 7</span>
+                <span class="pipeline-step-name">Мониторинг ГРП</span>
+                <span class="pipeline-step-val" id="pipe-val-monitored">0</span>
+                <span class="pipeline-step-sub">Фактический аудит</span>
               </div>
-              <div class="kpi-content">
-                <span class="kpi-label">Ortiqcha / Kamomad</span>
-                <span class="kpi-value">
-                  <span class="text-success" id="kpi-surplus-count">+0</span> /
-                  <span class="text-danger" id="kpi-shortage-count">-0</span>
-                </span>
-                <span class="kpi-sub" id="kpi-discrepancy-status">Tafovutlar holati</span>
+              <div class="pipeline-step">
+                <span class="pipeline-step-num">Этап 8</span>
+                <span class="pipeline-step-name">Инвентаризация</span>
+                <span class="pipeline-step-val" id="pipe-val-inventoried">0</span>
+                <span class="pipeline-step-sub">Итоговый отчёт проекта</span>
               </div>
             </div>
           </div>
 
-          <!-- Inventory Filter Toolbar -->
-          <div class="filter-toolbar">
-            <div class="search-box">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-              <input type="text" id="search-inventory" placeholder="Tovar kodi, nomi, mas'ul shaxs, tashkilot bo'yicha qidirish..." />
-              <button id="btn-clear-search" class="btn-clear" title="Tozalash">&times;</button>
+          <!-- 10 Official KPI Cards (ТЗ Section 10.1) -->
+          <div class="kpi-grid-10">
+            <div class="kpi-card kpi-info">
+              <span class="kpi-label">1. Оборудование по ТЭО</span>
+              <span class="kpi-val" id="kpi-teo-approved">0</span>
+              <span class="kpi-sub">Утверждено постановлением</span>
             </div>
-
-            <div class="filter-controls">
-              <select id="filter-region" class="filter-select">
-                <option value="">Barcha hududlar / All Regions (14)</option>
-              </select>
-
-              <select id="filter-discrepancy" class="filter-select">
-                <option value="all">Barcha holatlar / All status</option>
-                <option value="exact">Mos kelganlar / Exact match (Farqsiz)</option>
-                <option value="discrepancy">Faqat tafovutli / Any Discrepancy</option>
-                <option value="surplus">Ortiqcha / Surplus only</option>
-                <option value="shortage">Kamomad / Shortage only</option>
-              </select>
-
-              <select id="filter-currency" class="filter-select">
-                <option value="all">Barcha valyutalar / Currency</option>
-                <option value="UZS">UZS (So'm)</option>
-                <option value="USD">USD ($)</option>
-              </select>
-
-              <select id="filter-condition" class="filter-select">
-                <option value="all">Barcha holatlar / Condition</option>
-                <option value="Yangi / New">Yangi / New</option>
-                <option value="Yaxshi / Good">Yaxshi / Good</option>
-                <option value="Qoniqarli / Satisfactory">Qoniqarli / Satisfactory</option>
-                <option value="Ta'mir talab / Needs repair">Ta'mir talab / Needs repair</option>
-                <option value="Yaroqsiz / Defective">Yaroqsiz / Defective</option>
-              </select>
+            <div class="kpi-card">
+              <span class="kpi-label">2. Закуплено по контрактам</span>
+              <span class="kpi-val" id="kpi-contracted">0</span>
+              <span class="kpi-sub">Спецификации поставщиков</span>
+            </div>
+            <div class="kpi-card kpi-success">
+              <span class="kpi-label">3. Фактически поступило</span>
+              <span class="kpi-val" id="kpi-delivered">0</span>
+              <span class="kpi-sub">Учтено в УзАСБО (ГТД)</span>
+            </div>
+            <div class="kpi-card kpi-info">
+              <span class="kpi-label">4. Передано получателям</span>
+              <span class="kpi-val" id="kpi-transferred">0</span>
+              <span class="kpi-sub">Подписанные акты Transfer</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">5. Установлено (монтаж)</span>
+              <span class="kpi-val" id="kpi-installed">0</span>
+              <span class="kpi-sub">Монтаж и тестирование</span>
+            </div>
+            <div class="kpi-card kpi-success">
+              <span class="kpi-label">6. Введено в эксплуатацию</span>
+              <span class="kpi-val" id="kpi-commissioned">0</span>
+              <span class="kpi-sub">Акт ввода + обучение</span>
+            </div>
+            <div class="kpi-card kpi-info">
+              <span class="kpi-label">7. Прошло мониторинг ГРП</span>
+              <span class="kpi-val" id="kpi-monitored">0</span>
+              <span class="kpi-sub">Выездные проверки лабораторий</span>
+            </div>
+            <div class="kpi-card kpi-danger">
+              <span class="kpi-label">8. С дефектами / ремонтом</span>
+              <span class="kpi-val" id="kpi-defects">0</span>
+              <span class="kpi-sub">Требует гарантийных мер</span>
+            </div>
+            <div class="kpi-card kpi-info">
+              <span class="kpi-label">9. Проинвентаризировано</span>
+              <span class="kpi-val" id="kpi-inventoried">0</span>
+              <span class="kpi-sub">Сопоставлено с бухгалтерией</span>
+            </div>
+            <div class="kpi-card kpi-warning">
+              <span class="kpi-label">10. Остаток к распределению</span>
+              <span class="kpi-val" id="kpi-remaining">0</span>
+              <span class="kpi-sub">Не переданный резерв</span>
             </div>
           </div>
 
-          <!-- Data Table Wrapper -->
-          <div class="table-card">
-            <div class="table-card-header">
-              <div class="table-title-group">
-                <h3>Asosiy inventarizatsiya reyestri (1-varaq)</h3>
-                <span class="table-count-badge" id="inventory-shown-count">0 ta ko'rsatilmoqda</span>
+          <!-- Quick Action Panels: Urgent Alerts & Regional Distribution -->
+          <div class="section-panel">
+            <div class="section-header-row">
+              <div class="section-title-group">
+                <h2>⚠️ Оборудование, требующее оперативного реагирования ГРП</h2>
+                <p>Выявленные дефекты, рекламации поставщикам, рекламационные акты и нераспределённый остаток</p>
               </div>
-              <div class="table-quick-actions">
-                <button class="btn btn-sm btn-outline" id="btn-print-inventory-table">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                    <rect x="6" y="14" width="12" height="8"></rect>
-                  </svg>
-                  <span>Chop etish / Print</span>
-                </button>
-              </div>
+              <button class="btn btn-secondary" id="btn-print-alerts">Распечатать перечень дефектов</button>
             </div>
-
-            <div class="table-responsive" id="inventory-table-container">
-              <table class="data-table" id="inventory-table">
+            <div class="table-container">
+              <table class="data-table">
                 <thead>
                   <tr>
-                    <th class="col-num">№</th>
-                    <th>Tovar kodi / Item code</th>
-                    <th class="col-desc">Tovar nomi / Item description</th>
-                    <th>Birlik</th>
-                    <th>Hudud / Region</th>
-                    <th>Qabul qiluvchi tashkilot</th>
-                    <th>Saqlash joyi</th>
-                    <th>Mas'ul shaxs</th>
-                    <th class="col-qty">Hisob miqdori</th>
-                    <th class="col-qty">Haqiqiy miqdor</th>
-                    <th class="col-qty">Ortiqcha</th>
-                    <th class="col-qty">Kamomad</th>
-                    <th class="col-currency">Birlik narxi</th>
-                    <th>Valyuta</th>
-                    <th class="col-currency">Hisob qiymati</th>
-                    <th class="col-currency">Haqiqiy qiymat</th>
-                    <th class="col-currency">Farq / Diff</th>
-                    <th>Holati / Condition</th>
-                    <th>Hujjat №</th>
-                    <th>Izoh</th>
-                    <th class="col-actions">Amallar</th>
+                    <th>№</th>
+                    <th>Оборудование</th>
+                    <th>Серийный №</th>
+                    <th>Инвентарный №</th>
+                    <th>Организация / Регион</th>
+                    <th>Техническое состояние</th>
+                    <th>Описание дефекта / Замечания</th>
+                    <th>Рекомендации ГРП / Срок</th>
+                    <th>Паспорт</th>
                   </tr>
                 </thead>
-                <tbody id="inventory-tbody">
-                  <!-- Dynamically Rendered -->
+                <tbody id="dashboard-alerts-tbody">
+                  <!-- Dynamically populated -->
                 </tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- TAB 2: REGIONAL SUMMARY -->
-        <section id="tab-regional" class="tab-content" role="tabpanel">
-          <div class="regional-header-banner">
-            <div>
-              <h2>Hududlar bo'yicha jamlanma reyestri (2-varaq)</h2>
-              <p>O'zbekiston Respublikasining 14 ta hududi bo'yicha tovar-moddiy boyliklar va mablag'lar taqsimoti</p>
+        <!-- ============================================================== -->
+        <!-- TAB 1: МОДУЛЬ № 1. РАСПРЕДЕЛЕНИЕ ОБОРУДОВАНИЯ ПО ТЭО -->
+        <!-- ============================================================== -->
+        <section id="tab-teo" class="tab-content">
+          <div class="section-panel">
+            <div class="section-header-row">
+              <div class="section-title-group">
+                <h2>Модуль № 1. Распределение оборудования по ТЭО (Feasibility Study)</h2>
+                <p>Контроль распределения оборудования согласно постановлениям Президента РУз и утверждённому ТЭО</p>
+              </div>
+              <button class="btn btn-primary" id="btn-add-teo-row">+ Добавить позицию ТЭО</button>
             </div>
-            <div class="regional-actions">
-              <button class="btn btn-secondary" id="btn-print-regional">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                  <rect x="6" y="14" width="12" height="8"></rect>
-                </svg>
-                <span>Jamlanmani chop etish</span>
-              </button>
-            </div>
-          </div>
 
-          <!-- Regional Visualization Bar -->
-          <div class="regional-visual-card">
-            <h4 class="visual-title">Hududlar bo'yicha aktivlar qiymati ulushi (UZS & USD jami ekvivalent)</h4>
-            <div class="regional-bars-container" id="regional-visual-bars">
-              <!-- Rendered via JS -->
+            <div class="filter-toolbar">
+              <div class="search-input-wrap">
+                <input type="text" id="search-teo" class="search-input" placeholder="Поиск по ТЭО, оборудованию, постановлению, организации..." />
+              </div>
+              <select id="filter-teo-region" class="select-filter">
+                <option value="">Все регионы</option>
+              </select>
+              <button class="btn btn-ghost" id="btn-print-teo">Печать ТЭО (A4)</button>
             </div>
-          </div>
 
-          <!-- Regional Summary Table -->
-          <div class="table-card">
-            <div class="table-responsive">
-              <table class="data-table regional-table" id="regional-table">
+            <div class="table-container">
+              <table class="data-table">
                 <thead>
                   <tr>
-                    <th style="width: 40px;">№</th>
-                    <th>Hudud / Region</th>
-                    <th class="col-qty">Pozitsiyalar / Items</th>
-                    <th class="col-qty">Hisob miqdori / Book qty</th>
-                    <th class="col-qty">Haqiqiy miqdor / Actual qty</th>
-                    <th class="col-qty">Ortiqcha / Surplus</th>
-                    <th class="col-qty">Kamomad / Shortage</th>
-                    <th class="col-currency">UZS qiymati / UZS value</th>
-                    <th class="col-currency">USD qiymati / USD value</th>
-                    <th class="col-actions">Amal</th>
+                    <th>№</th>
+                    <th>Постановление Президента</th>
+                    <th>№ ТЭО</th>
+                    <th>Код</th>
+                    <th>Наименование оборудования</th>
+                    <th>Утверждено</th>
+                    <th>Регион</th>
+                    <th>Получающая организация</th>
+                    <th>План</th>
+                    <th>Поставлено</th>
+                    <th>Передано</th>
+                    <th>Остаток</th>
+                    <th>Цена USD</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
                   </tr>
                 </thead>
-                <tbody id="regional-tbody">
-                  <!-- Rendered via JS -->
-                </tbody>
-                <tfoot id="regional-tfoot">
-                  <!-- Grand Totals -->
-                </tfoot>
+                <tbody id="teo-tbody"></tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- TAB 3: DISCREPANCIES -->
-        <section id="tab-discrepancies" class="tab-content" role="tabpanel">
-          <div class="discrepancy-header-banner">
-            <div>
-              <h2>Tafovutlar qaydnomasi (3-varaq / Discrepancy Register)</h2>
-              <p>Haqiqiy mavjudlik bilan hisob ma'lumotlari o'rtasida farq (ortiqcha yoki kamomad) aniqlangan pozitsiyalar</p>
-            </div>
-            <div class="discrepancy-status-tags">
-              <div class="disc-stat-pill surplus-pill">
-                <span class="pill-label">Ortiqcha tovarlar:</span>
-                <strong id="disc-summary-surplus">0 ta</strong>
+        <!-- ============================================================== -->
+        <!-- TAB 2: МОДУЛЬ № 2. ЗАКУПКИ И КОНТРАКТЫ -->
+        <!-- ============================================================== -->
+        <section id="tab-contracts" class="tab-content">
+          <div class="section-panel">
+            <div class="section-header-row">
+              <div class="section-title-group">
+                <h2>Модуль № 2. Закупки и контракты (Procurement & Contracts)</h2>
+                <p>Учёт контрактов с поставщиками, спецификаций, логистических расходов и гарантийных обязательств</p>
               </div>
-              <div class="disc-stat-pill shortage-pill">
-                <span class="pill-label">Kamomad tovarlar:</span>
-                <strong id="disc-summary-shortage">0 ta</strong>
-              </div>
-            </div>
-          </div>
-
-          <div class="discrepancy-notice-box">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="16" x2="12" y2="12"></line>
-              <line x1="12" y1="8" x2="12.01" y2="8"></line>
-            </svg>
-            <div>
-              <strong>Eslatma va ko'rsatma:</strong> Ushbu sahifadagi har bir tafovut bo'yicha mas'ul shaxsdan yozma tushuntirish xati (Izoh) olinishi va komissiya tomonidan bartaraf etish chorasi (Kirim qilish / Hisobdan chiqarish / Servisga yuborish / Undirish) belgilanishi shart. O'zgarishlar avtomatik saqlanadi va Excel faylga eksport qilinadi.
-            </div>
-          </div>
-
-          <div class="table-card">
-            <div class="table-card-header">
-              <div class="table-title-group">
-                <h3>Aniqlangan tafovutlar ro'yxati</h3>
-                <span class="table-count-badge" id="discrepancy-count-badge">0 ta holat</span>
-              </div>
+              <button class="btn btn-primary" id="btn-add-contract">+ Зарегистрировать контракт</button>
             </div>
 
-            <div class="table-responsive">
-              <table class="data-table" id="discrepancies-table">
+            <div class="filter-toolbar">
+              <div class="search-input-wrap">
+                <input type="text" id="search-contracts" class="search-input" placeholder="Поиск по контрактам, поставщикам, моделям..." />
+              </div>
+              <button class="btn btn-ghost" id="btn-print-contracts">Печать реестра контрактов</button>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Item code</th>
-                    <th>Item description</th>
-                    <th>Region</th>
-                    <th>Institution</th>
-                    <th class="col-qty">Book qty</th>
-                    <th class="col-qty">Actual qty</th>
-                    <th class="col-qty">Surplus</th>
-                    <th class="col-qty">Shortage</th>
-                    <th class="col-currency">Difference value</th>
-                    <th>Condition</th>
-                    <th style="min-width: 250px;">Explanation / Izoh (Tushuntirish)</th>
-                    <th style="min-width: 240px;">Corrective action / Chora</th>
-                    <th>Responsible person</th>
+                    <th>№</th>
+                    <th>Номер контракта</th>
+                    <th>Дата</th>
+                    <th>Поставщик</th>
+                    <th>Наименование оборудования</th>
+                    <th>Комплектность</th>
+                    <th>Год</th>
+                    <th>Серии</th>
+                    <th>Производитель / Страна</th>
+                    <th>Кол-во</th>
+                    <th>Цена USD</th>
+                    <th>Товарная сумма USD</th>
+                    <th>Сопутствующие расходы USD</th>
+                    <th>Итого контракт USD</th>
+                    <th>Гарантия</th>
+                    <th>Статус</th>
                   </tr>
                 </thead>
-                <tbody id="discrepancies-tbody">
-                  <!-- Rendered via JS -->
-                </tbody>
+                <tbody id="contracts-tbody"></tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- TAB 4: HANDOVER REGISTER -->
-        <section id="tab-handover" class="tab-content" role="tabpanel">
-          <div class="handover-header-banner">
-            <div>
-              <h2>Topshirish-qabul qilish reyestri (4-varaq / Handover Register)</h2>
-              <p>Loyiha yakunida tovar-moddiy boyliklarni qabul qiluvchi benefitsiar tashkilotlarga topshirish dalolatnomalari</p>
+        <!-- ============================================================== -->
+        <!-- TAB 3: МОДУЛЬ № 3. ПОСТУПЛЕНИЕ И УЗАСБО -->
+        <!-- ============================================================== -->
+        <section id="tab-receipts" class="tab-content">
+          <div class="section-panel">
+            <div class="section-header-row">
+              <div class="section-title-group">
+                <h2>Модуль № 3. Поступление оборудования и учёт в УзАСБО (Receipts & UzASBO)</h2>
+                <p>Учёт счетов-фактур, таможенного оформления (ГТД), регистрации в УзАСБО и генерация внутренних Transfer</p>
+              </div>
+              <button class="btn btn-primary" id="btn-add-receipt">+ Зарегистрировать поступление</button>
             </div>
-            <div class="handover-actions">
-              <button class="btn btn-primary" id="btn-create-handover-modal">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                <span>+ Yangi topshirish akti / New Act</span>
-              </button>
-            </div>
-          </div>
 
-          <div class="table-card">
-            <div class="table-responsive">
-              <table class="data-table" id="handover-table">
+            <div class="filter-toolbar">
+              <div class="search-input-wrap">
+                <input type="text" id="search-receipts" class="search-input" placeholder="Поиск по счёту-фактуре, ГТД, Transfer №..." />
+              </div>
+              <button class="btn btn-ghost" id="btn-print-receipts">Печать реестра поступлений</button>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Sana / Date</th>
-                    <th>Hujjat № / Doc No.</th>
-                    <th>Tovar kodi / Item code</th>
-                    <th style="min-width: 200px;">Tovar nomi / Description</th>
-                    <th class="col-qty">Miqdor / Qty</th>
-                    <th>Birlik</th>
-                    <th>Hudud / Region</th>
-                    <th>Qabul qiluvchi tashkilot</th>
-                    <th>Qabul qiluvchi vakili</th>
-                    <th>Topshiruvchi</th>
-                    <th>Holati</th>
-                    <th>Asos hujjati</th>
-                    <th>Imzolar</th>
-                    <th>Izoh</th>
-                    <th class="col-actions">Chop etish</th>
+                    <th>№</th>
+                    <th>Контракт №</th>
+                    <th>Счёт-фактура №</th>
+                    <th>Дата счёта-фактуры</th>
+                    <th>Дата поступления</th>
+                    <th>ГТД / Таможня №</th>
+                    <th>Дата ГТД</th>
+                    <th>Дата в УзАСБО</th>
+                    <th>Номер Transfer</th>
+                    <th>Дата Transfer</th>
+                    <th>Поставлено</th>
+                    <th>Бух. счёт / Стоимость УЗС</th>
+                    <th>Статус оформления</th>
                   </tr>
                 </thead>
-                <tbody id="handover-tbody">
-                  <!-- Rendered via JS -->
-                </tbody>
+                <tbody id="receipts-tbody"></tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- TAB 5: COMMITTEE & PROTOCOL -->
-        <section id="tab-committee" class="tab-content" role="tabpanel">
-          <div class="committee-header-banner">
-            <div>
-              <h2>Inventarizatsiya komissiyasi va yakuniy dalolatnoma (5-varaq)</h2>
-              <p>Loyiha rahbariyati, komissiya a'zolari va bosh buxgalter tomonidan tasdiqlanadigan rasmiy inventarizatsiya dalolatnomasi</p>
+        <!-- ============================================================== -->
+        <!-- TAB 4: МОДУЛЬ № 4. ПЕРЕДАЧА КОНЕЧНЫМ ПОЛУЧАТЕЛЯМ -->
+        <!-- ============================================================== -->
+        <section id="tab-handovers" class="tab-content">
+          <div class="section-panel">
+            <div class="section-header-row">
+              <div class="section-title-group">
+                <h2>Модуль № 4. Передача оборудования конечным получателям (Handover & Transfer)</h2>
+                <p>Оформление и учёт Актов приёма-передачи, привязка к организациям, лабораториям, МОЛ и ИНН</p>
+              </div>
+              <button class="btn btn-primary" id="btn-add-handover-new">+ Оформить акт приёма-передачи</button>
             </div>
-            <div class="committee-actions">
-              <button class="btn btn-primary" id="btn-print-committee-protocol">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                  <rect x="6" y="14" width="12" height="8"></rect>
-                </svg>
-                <span>Rasmiy Dalolatnomani chop etish / Print Protocol</span>
-              </button>
+
+            <div class="filter-toolbar">
+              <div class="search-input-wrap">
+                <input type="text" id="search-handovers" class="search-input" placeholder="Поиск по номеру акта, лаборатории, ИНН, МОЛ..." />
+              </div>
+              <select id="filter-handover-region" class="select-filter">
+                <option value="">Все регионы</option>
+              </select>
+              <button class="btn btn-ghost" id="btn-print-handovers-list">Печать реестра актов передачи</button>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>№</th>
+                    <th>Transfer №</th>
+                    <th>Акт передачи №</th>
+                    <th>Дата акта</th>
+                    <th>Регион</th>
+                    <th>Район / Город</th>
+                    <th>Организация-получатель</th>
+                    <th>ИНН (СТИР)</th>
+                    <th>Лаборатория</th>
+                    <th>Оборудование</th>
+                    <th>Кол-во</th>
+                    <th>Сумма USD</th>
+                    <th>Сумма UZS</th>
+                    <th>Материально ответственное лицо</th>
+                    <th>Печать Акта А4</th>
+                  </tr>
+                </thead>
+                <tbody id="handovers-tbody"></tbody>
+              </table>
             </div>
           </div>
+        </section>
 
-          <div class="committee-layout">
-            <!-- Organization and Commission Info Card -->
-            <div class="card committee-card">
-              <h3 class="card-title">Komissiya ma'lumotlari / Commission Details</h3>
-              <div class="form-grid">
-                <div class="form-group span-2">
-                  <label>Tashkilot / Organization:</label>
-                  <input type="text" id="comm-org" class="form-control" />
+        <!-- ============================================================== -->
+        <!-- TAB 5: МОДУЛЬ № 5. УСТАНОВКА И ВВОД В ЭКСПЛУАТАЦИЮ -->
+        <!-- ============================================================== -->
+        <section id="tab-installations" class="tab-content">
+          <div class="section-panel">
+            <div class="section-header-row">
+              <div class="section-title-group">
+                <h2>Модуль № 5. Установка, монтаж и ввод в эксплуатацию (Installation & Commissioning)</h2>
+                <p>Контроль монтажа, испытаний, обучения персонала и подписания актов ввода в эксплуатацию (7 статусов)</p>
+              </div>
+              <button class="btn btn-primary" id="btn-add-installation">+ Добавить монтаж / ввод</button>
+            </div>
+
+            <div class="filter-toolbar">
+              <div class="search-input-wrap">
+                <input type="text" id="search-installations" class="search-input" placeholder="Поиск по оборудованию, статусу установки, организации..." />
+              </div>
+              <select id="filter-install-status" class="select-filter">
+                <option value="">Все статусы монтажа</option>
+              </select>
+              <button class="btn btn-ghost" id="btn-print-installations">Печать отчёта о монтаже</button>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>№</th>
+                    <th>Акт передачи №</th>
+                    <th>Оборудование</th>
+                    <th>Серийный №</th>
+                    <th>Организация</th>
+                    <th>Регион</th>
+                    <th>Статус установки</th>
+                    <th>Дата монтажа</th>
+                    <th>Испытания / Результат</th>
+                    <th>Дата ввода в эксплуатацию</th>
+                    <th>Акт ввода №</th>
+                    <th>Специалист поставщика</th>
+                    <th>Обучение проведено</th>
+                    <th>Паспорт</th>
+                  </tr>
+                </thead>
+                <tbody id="installations-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- TAB 6: МОДУЛЬ № 6. МОНИТОРИНГ ГРП -->
+        <!-- ============================================================== -->
+        <section id="tab-monitoring" class="tab-content">
+          <div class="section-panel">
+            <div class="section-header-row">
+              <div class="section-title-group">
+                <h2>Модуль № 6. Мониторинг оборудования со стороны ГРП (PIU Monitoring)</h2>
+                <p>Фиксация фактического наличия, местонахождения, 8 категорий техсостояния, дефектов, фото и рекомендаций</p>
+              </div>
+              <button class="btn btn-primary" id="btn-add-monitoring-visit">+ Зарегистрировать визит мониторинга</button>
+            </div>
+
+            <div class="filter-toolbar">
+              <div class="search-input-wrap">
+                <input type="text" id="search-monitoring" class="search-input" placeholder="Поиск по проверкам, оборудованию, дефектам..." />
+              </div>
+              <select id="filter-mon-condition" class="select-filter">
+                <option value="">Все категории техсостояния</option>
+              </select>
+              <button class="btn btn-ghost" id="btn-print-monitoring">Печать отчёта мониторинга</button>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>№</th>
+                    <th>Дата мониторинга</th>
+                    <th>Организация / Регион</th>
+                    <th>Оборудование</th>
+                    <th>Серийный №</th>
+                    <th>Инвентарный №</th>
+                    <th>Фактическое местонахождение</th>
+                    <th>Наличие</th>
+                    <th>Техническое состояние</th>
+                    <th>Выявленные дефекты</th>
+                    <th>Фото</th>
+                    <th>Рекомендации / Сроки</th>
+                    <th>Результат</th>
+                    <th>Специалист ГРП</th>
+                  </tr>
+                </thead>
+                <tbody id="monitoring-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- TAB 7: МОДУЛЬ № 7. ИНВЕНТАРИЗАЦИЯ -->
+        <!-- ============================================================== -->
+        <section id="tab-inventory" class="tab-content">
+          <div class="section-panel">
+            <div class="section-header-row">
+              <div class="section-title-group">
+                <h2>Модуль № 7. Инвентаризация оборудования (Inventory Audit)</h2>
+                <p>Сопоставление данных фактического наличия с бухгалтерским учётом, выявление расхождений и протокол комиссии</p>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button class="btn btn-secondary" id="btn-show-committee-protocol">Протокол комиссии</button>
+                <button class="btn btn-primary" id="btn-add-inv-item">+ Добавить объект инвентаризации</button>
+              </div>
+            </div>
+
+            <div class="filter-toolbar">
+              <div class="search-input-wrap">
+                <input type="text" id="search-inventory" class="search-input" placeholder="Поиск по инвентарю, коду, серийному номеру, МОЛ..." />
+              </div>
+              <select id="filter-inv-region" class="select-filter">
+                <option value="">Все регионы</option>
+              </select>
+              <select id="filter-inv-discrepancy" class="select-filter">
+                <option value="">Все позиции</option>
+                <option value="surplus">Только излишки (Surplus)</option>
+                <option value="shortage">Только недостачи (Shortage)</option>
+              </select>
+              <button class="btn btn-ghost" id="btn-print-inv-sheet">Печать Инвентаризационной описи (А4)</button>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>№</th>
+                    <th>Код</th>
+                    <th>Оборудование</th>
+                    <th>Серийный №</th>
+                    <th>Инвентарный №</th>
+                    <th>Ед.</th>
+                    <th>Регион</th>
+                    <th>Организация / Помещение</th>
+                    <th>МОЛ</th>
+                    <th>Учёт (книга)</th>
+                    <th>Факт</th>
+                    <th>Излишек</th>
+                    <th>Недостача</th>
+                    <th>Цена</th>
+                    <th>Учётная стоимость</th>
+                    <th>Фактическая стоимость</th>
+                    <th>Техсостояние</th>
+                    <th>Акт передачи</th>
+                    <th>Паспорт</th>
+                  </tr>
+                </thead>
+                <tbody id="inventory-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- TAB 8: МОДУЛЬ № 8. ОТЧЁТЫ И АНАЛИТИКА (13 ОТЧЁТОВ ИЗ ТЗ) -->
+        <!-- ============================================================== -->
+        <section id="tab-reports" class="tab-content">
+          <div class="section-panel">
+            <div class="section-header-row">
+              <div class="section-title-group">
+                <h2>Модуль № 8. Отчёты и аналитика (13 официальных отчётов ТЗ)</h2>
+                <p>Автоматическое формирование, фильтрация, предпросмотр, экспорт в Excel и печать в PDF</p>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button class="btn btn-primary" id="btn-print-active-report">Печать выбранного отчёта (A4)</button>
+              </div>
+            </div>
+
+            <div class="filter-toolbar">
+              <span style="font-size:0.8rem; font-weight:700; color:var(--navy-dark);">Выберите отчёт:</span>
+              <select id="select-report-type" class="select-filter" style="min-width:340px; font-weight:600;">
+                <option value="1">1. Перечень оборудования согласно утверждённому ТЭО</option>
+                <option value="2">2. Отчёт о распределении оборудования по регионам</option>
+                <option value="3">3. Отчёт о закупленном оборудовании по контрактам</option>
+                <option value="4">4. Отчёт о фактически поступившем оборудовании</option>
+                <option value="5">5. Отчёт по документам Transfer</option>
+                <option value="6">6. Отчёт о передаче оборудования конечным организациям</option>
+                <option value="7">7. Отчёт об установке и вводе в эксплуатацию</option>
+                <option value="8">8. Отчёт о гарантийных обязательствах</option>
+                <option value="9">9. Отчёт о техническом состоянии оборудования</option>
+                <option value="10">10. Отчёт о результатах мониторинга ГРП</option>
+                <option value="11">11. Инвентаризационный отчёт</option>
+                <option value="12">12. Отчёт о выявленных расхождениях и дефектах</option>
+                <option value="13">13. Итоговый отчёт по завершении проекта</option>
+              </select>
+            </div>
+
+            <!-- Dynamic Report Display Area -->
+            <div id="report-view-container" style="margin-top:16px;">
+              <!-- Dynamically populated report content -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================================== -->
+        <!-- TAB 9: МОДУЛЬ № 9. СПРАВОЧНИКИ, ПАСПОРТА И АУДИТ -->
+        <!-- ============================================================== -->
+        <section id="tab-directory" class="tab-content">
+          <div class="section-panel">
+            <div class="section-header-row">
+              <div class="section-title-group">
+                <h2>Модуль № 9. Паспорта оборудования, Пользователи и Журнал аудита</h2>
+                <p>Электронные карточки оборудования (21 пункт из ТЗ), управление ролями и фиксация действий</p>
+              </div>
+            </div>
+
+            <!-- Sub Navigation or Quick Sections -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+              <!-- Equipment Passport Quick Lookup -->
+              <div class="passport-section-card">
+                <h3 class="passport-section-title">🔍 Быстрый поиск паспорта оборудования</h3>
+                <p style="font-size:0.75rem; color:var(--slate-500); margin-bottom:10px;">
+                  Введите серийный номер, инвентарный номер или наименование для открытия полной карточки:
+                </p>
+                <div style="display:flex; gap:8px;">
+                  <input type="text" id="quick-passport-input" class="search-input" placeholder="BR-PCR-98214-01 / INV-SAM-00421..." />
+                  <button class="btn btn-primary" id="btn-quick-passport-find">Открыть паспорт</button>
                 </div>
-                <div class="form-group span-2">
-                  <label>Loyiha / Project:</label>
-                  <input type="text" id="comm-project" class="form-control" />
-                </div>
-                <div class="form-group">
-                  <label>Buyruq raqami / Order No.:</label>
-                  <input type="text" id="comm-order-no" class="form-control" />
-                </div>
-                <div class="form-group">
-                  <label>Boshlanish sanasi / Start date:</label>
-                  <input type="date" id="comm-start-date" class="form-control" />
-                </div>
-                <div class="form-group">
-                  <label>Tugash sanasi / End date:</label>
-                  <input type="date" id="comm-end-date" class="form-control" />
+                <div style="margin-top:14px;">
+                  <span style="font-size:0.72rem; font-weight:700; color:var(--slate-600);">Примеры оборудования в проекте:</span>
+                  <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:6px;" id="passport-quick-chips">
+                    <!-- Populated dynamically -->
+                  </div>
                 </div>
               </div>
 
-              <h4 class="section-sub-title">Komissiya a'zolari / Commission Members & Signatures</h4>
-              <div class="table-responsive">
-                <table class="data-table member-table">
+              <!-- Roles & Permissions Matrix Card -->
+              <div class="passport-section-card">
+                <h3 class="passport-section-title">👥 Матрица ролей и полномочий (ТЗ Раздел 11)</h3>
+                <div style="font-size:0.74rem; color:var(--slate-600); line-height:1.6;" id="roles-matrix-info">
+                  <!-- Populated dynamically based on selected role -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Audit Trail Log Table -->
+            <div style="margin-top:24px;">
+              <div class="section-header-row">
+                <div class="section-title-group">
+                  <h3 style="font-size:0.95rem; font-weight:700; color:var(--navy-dark);">Журнал операций системы (Audit Log)</h3>
+                  <p style="font-size:0.74rem; color:var(--slate-500);">Неизменяемая история изменений: кто, когда, модуль, старое и новое значение</p>
+                </div>
+              </div>
+              <div class="table-container">
+                <table class="data-table">
                   <thead>
                     <tr>
-                      <th>Lavozim / Role</th>
-                      <th>F.I.Sh. / Full name</th>
-                      <th>Imzo / Signature</th>
-                      <th>Sana / Date</th>
+                      <th>№</th>
+                      <th>Дата и время</th>
+                      <th>Пользователь</th>
+                      <th>Модуль</th>
+                      <th>Действие</th>
+                      <th>Идентификатор объекта</th>
+                      <th>Описание операции</th>
+                      <th>Предыдущее значение</th>
+                      <th>Новое значение</th>
                     </tr>
                   </thead>
-                  <tbody id="comm-members-tbody">
-                    <!-- Rendered via JS -->
-                  </tbody>
+                  <tbody id="audit-log-tbody"></tbody>
                 </table>
-              </div>
-            </div>
-
-            <!-- Decisions and Findings Card -->
-            <div class="card committee-card">
-              <h3 class="card-title">Xulosa va Rahbar qarori / Conclusions & Findings</h3>
-              
-              <div class="form-group mb-4">
-                <label class="font-bold">1. Xulosa / Conclusion:</label>
-                <textarea id="comm-conclusion" class="form-control" rows="3"></textarea>
-              </div>
-
-              <div class="form-group mb-4">
-                <label class="font-bold">2. Aniqlangan tafovutlar / Discrepancies identified:</label>
-                <textarea id="comm-discrepancies" class="form-control" rows="3"></textarea>
-              </div>
-
-              <div class="form-group mb-4">
-                <label class="font-bold">3. Tavsiya etilgan choralar / Recommended actions:</label>
-                <textarea id="comm-recommended" class="form-control" rows="3"></textarea>
-              </div>
-
-              <div class="form-group mb-4">
-                <label class="font-bold">4. Rahbar qarori / Management decision:</label>
-                <textarea id="comm-decision" class="form-control" rows="3"></textarea>
-              </div>
-
-              <div class="save-row">
-                <button class="btn btn-primary" id="btn-save-committee">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                    <polyline points="7 3 7 8 15 8"></polyline>
-                  </svg>
-                  <span>O'zgarishlarni saqlash / Save Changes</span>
-                </button>
               </div>
             </div>
           </div>
         </section>
       </main>
 
-      <!-- Footer -->
-      <footer class="app-footer">
+      <!-- App Footer -->
+      <footer class="app-footer no-print">
         <div class="footer-left">
-          <span>O'zbekiston Respublikasi &bull; Loyiha inventarizatsiyasi va aktivlar boshqaruvi</span>
+          <div class="footer-brand-row">
+            <span class="footer-pems-badge">PEMS-UZ</span>
+            <span class="footer-title">PROJECT EQUIPMENT MANAGEMENT SYSTEM &bull; UZBEKISTAN</span>
+          </div>
+          <p class="footer-desc">
+            Система учёта, распределения, поступления, передачи, мониторинга и инвентаризации оборудования в рамках проектов АБР и АБИИ.
+          </p>
         </div>
         <div class="footer-right">
-          <span class="status-indicator online"></span>
-          <span>Excel sinxronizatsiyasi faol: <code>Project_Inventory_UZ_EN.xlsx</code></span>
+          <div class="footer-dev-card">
+            <span class="dev-caption">developed by:</span>
+            <span class="dev-fullname">Abdiyev Salimkhon Sanjar ugli</span>
+          </div>
+          <div class="footer-status">
+            <span class="status-indicator online"></span>
+            <span>Excel синхронизация: <code>PEMS_UZ_Equipment_Registry_ADB_AIIB.xlsx</code></span>
+          </div>
         </div>
       </footer>
     </div>
 
-    <!-- MODAL: ADD / EDIT INVENTORY ITEM -->
+    <!-- ============================================================== -->
+    <!-- MODAL 1: ELECTRONIC EQUIPMENT PASSPORT (21 Points from ТЗ Section 13) -->
+    <!-- ============================================================== -->
+    <div id="passport-modal" class="modal-overlay hidden">
+      <div class="modal-card passport-modal-card">
+        <div class="modal-header">
+          <h3 id="passport-modal-title">Электронная карточка оборудования (PEMS-UZ Passport)</h3>
+          <button class="btn-modal-close" id="btn-close-passport-modal">&times;</button>
+        </div>
+        <div class="modal-body" id="passport-modal-body">
+          <!-- Dynamically populated with all 21 fields and lifecycle timeline -->
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="btn-print-passport">Печать карточки оборудования (PDF)</button>
+          <button class="btn btn-primary" id="btn-close-passport-btn">Закрыть</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- MODAL 2: ADD / EDIT UNIVERSAL ITEM MODAL -->
+    <!-- ============================================================== -->
     <div id="item-modal" class="modal-overlay hidden">
       <div class="modal-card">
         <div class="modal-header">
-          <h3 id="modal-item-title">Yangi tovar qo'shish / Add Inventory Item</h3>
+          <h3 id="modal-item-title">Добавить / Изменить запись</h3>
           <button class="btn-modal-close" id="btn-close-item-modal">&times;</button>
         </div>
-        <form id="item-form" class="modal-body">
-          <input type="hidden" id="item-id" />
-          
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Tovar kodi / Item code *</label>
-              <input type="text" id="f-code" class="form-control" placeholder="Masalan: ITM-2026-016" required />
-            </div>
-
-            <div class="form-group">
-              <label>O'lchov birligi / Unit *</label>
-              <select id="f-unit" class="form-control" required></select>
-            </div>
-
-            <div class="form-group span-2">
-              <label>Tovar nomi / Item description *</label>
-              <input type="text" id="f-desc" class="form-control" placeholder="To'liq nomi va modeli..." required />
-            </div>
-
-            <div class="form-group span-2">
-              <label>Hudud / Region *</label>
-              <select id="f-region" class="form-control" required></select>
-            </div>
-
-            <div class="form-group">
-              <label>Qabul qiluvchi tashkilot / Institution *</label>
-              <input type="text" id="f-institution" class="form-control" placeholder="Tashkilot nomi..." required />
-            </div>
-
-            <div class="form-group">
-              <label>Saqlash joyi / Location</label>
-              <input type="text" id="f-location" class="form-control" placeholder="Omborxona, xona raqami..." />
-            </div>
-
-            <div class="form-group">
-              <label>Mas'ul shaxs / Responsible person *</label>
-              <input type="text" id="f-responsible" class="form-control" placeholder="F.I.Sh." required />
-            </div>
-
-            <div class="form-group">
-              <label>Holati / Condition</label>
-              <select id="f-condition" class="form-control"></select>
-            </div>
-
-            <div class="form-group">
-              <label>Hisob miqdori / Book qty *</label>
-              <input type="number" id="f-book-qty" class="form-control" min="0" step="1" required />
-            </div>
-
-            <div class="form-group">
-              <label>Haqiqiy miqdor / Actual qty *</label>
-              <input type="number" id="f-actual-qty" class="form-control" min="0" step="1" required />
-            </div>
-
-            <div class="form-group">
-              <label>Birlik narxi / Unit price *</label>
-              <input type="number" id="f-unit-price" class="form-control" min="0" step="any" required />
-            </div>
-
-            <div class="form-group">
-              <label>Valyuta / Currency *</label>
-              <select id="f-currency" class="form-control">
-                <option value="UZS">UZS (O'zbek so'mi)</option>
-                <option value="USD">USD (AQSh dollari)</option>
+        <form id="item-form">
+          <div class="modal-body">
+            <div class="form-group span-2" style="margin-bottom:12px;">
+              <label>Модуль назначения *</label>
+              <select id="modal-target-module" class="form-control" style="font-weight:700;">
+                <option value="inventory">Модуль 7: Объект инвентаризации (Inventory)</option>
+                <option value="teo">Модуль 1: Позиция ТЭО (Feasibility Study)</option>
+                <option value="contract">Модуль 2: Контракт и закупка (Contracts)</option>
+                <option value="receipt">Модуль 3: Поступление и УзАСБО (Receipt)</option>
+                <option value="handover">Модуль 4: Передача и акт (Handover)</option>
+                <option value="installation">Модуль 5: Монтаж и ввод (Installation)</option>
+                <option value="monitoring">Модуль 6: Мониторинг ГРП (Monitoring)</option>
               </select>
             </div>
 
-            <!-- Auto-Calculated Live Preview Box -->
-            <div class="calculated-preview span-2">
-              <div class="preview-metric">
-                <span class="preview-label">Ortiqcha / Surplus:</span>
-                <strong id="prev-surplus" class="text-success">0</strong>
-              </div>
-              <div class="preview-metric">
-                <span class="preview-label">Kamomad / Shortage:</span>
-                <strong id="prev-shortage" class="text-danger">0</strong>
-              </div>
-              <div class="preview-metric">
-                <span class="preview-label">Hisob qiymati:</span>
-                <strong id="prev-book-val">0</strong>
-              </div>
-              <div class="preview-metric">
-                <span class="preview-label">Haqiqiy qiymat:</span>
-                <strong id="prev-actual-val">0</strong>
-              </div>
-              <div class="preview-metric">
-                <span class="preview-label">Farq / Diff:</span>
-                <strong id="prev-diff">0</strong>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Topshirish hujjati / Handover doc</label>
-              <input type="text" id="f-handover-doc" class="form-control" placeholder="Masalan: TT-016/2026" />
-            </div>
-
-            <div class="form-group">
-              <label>Izoh / Remarks</label>
-              <input type="text" id="f-remarks" class="form-control" placeholder="Qo'shimcha izoh..." />
+            <!-- Dynamic Form Fields depending on selected module -->
+            <div id="dynamic-form-fields" class="form-grid-2">
+              <!-- Dynamically populated fields -->
             </div>
           </div>
-
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id="btn-cancel-item">Bekor qilish</button>
-            <button type="submit" class="btn btn-primary" id="btn-save-item">Saqlash / Save</button>
+            <button type="button" class="btn btn-secondary" id="btn-cancel-modal">Отмена</button>
+            <button type="submit" class="btn btn-primary" id="btn-save-modal-item">Сохранить запись</button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- MODAL: CREATE HANDOVER ACT -->
-    <div id="handover-modal" class="modal-overlay hidden">
-      <div class="modal-card">
-        <div class="modal-header">
-          <h3>Yangi topshirish-qabul qilish akti / New Handover Act</h3>
-          <button class="btn-modal-close" id="btn-close-handover-modal">&times;</button>
-        </div>
-        <form id="handover-form" class="modal-body">
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Sana / Date *</label>
-              <input type="date" id="ho-f-date" class="form-control" required />
-            </div>
-
-            <div class="form-group">
-              <label>Hujjat raqami / Doc No. *</label>
-              <input type="text" id="ho-f-docno" class="form-control" placeholder="Masalan: TT-16/2026" required />
-            </div>
-
-            <div class="form-group span-2">
-              <label>Mavjud tovarni tanlash (Ixtiyoriy):</label>
-              <select id="ho-f-select-item" class="form-control">
-                <option value="">-- Tovarni ro'yxatdan tanlash --</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Tovar kodi / Item code *</label>
-              <input type="text" id="ho-f-code" class="form-control" required />
-            </div>
-
-            <div class="form-group">
-              <label>O'lchov birligi / Unit *</label>
-              <input type="text" id="ho-f-unit" class="form-control" value="dona" required />
-            </div>
-
-            <div class="form-group span-2">
-              <label>Tovar nomi / Description *</label>
-              <input type="text" id="ho-f-desc" class="form-control" required />
-            </div>
-
-            <div class="form-group">
-              <label>Topshirilayotgan miqdor / Quantity *</label>
-              <input type="number" id="ho-f-qty" class="form-control" min="1" required />
-            </div>
-
-            <div class="form-group">
-              <label>Holati / Condition *</label>
-              <select id="ho-f-condition" class="form-control">
-                <option value="Yaxshi / Good">Yaxshi / Good</option>
-                <option value="Yangi / New">Yangi / New</option>
-                <option value="Qoniqarli / Satisfactory">Qoniqarli / Satisfactory</option>
-              </select>
-            </div>
-
-            <div class="form-group span-2">
-              <label>Hudud / Region *</label>
-              <select id="ho-f-region" class="form-control" required></select>
-            </div>
-
-            <div class="form-group span-2">
-              <label>Qabul qiluvchi tashkilot / Receiving Institution *</label>
-              <input type="text" id="ho-f-institution" class="form-control" required />
-            </div>
-
-            <div class="form-group">
-              <label>Qabul qiluvchi vakili / Recipient Name *</label>
-              <input type="text" id="ho-f-recipient" class="form-control" placeholder="F.I.Sh." required />
-            </div>
-
-            <div class="form-group">
-              <label>Topshiruvchi / Transferor *</label>
-              <input type="text" id="ho-f-transferor" class="form-control" placeholder="F.I.Sh." required />
-            </div>
-
-            <div class="form-group span-2">
-              <label>Asos hujjati / Supporting Document</label>
-              <input type="text" id="ho-f-supporting" class="form-control" placeholder="Vazirlik buyrug'i, loyiha kelishuvi..." />
-            </div>
-
-            <div class="form-group span-2">
-              <label>Izoh / Remarks</label>
-              <input type="text" id="ho-f-remarks" class="form-control" placeholder="Qo'shimcha ma'lumotlar..." />
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" id="btn-cancel-handover">Bekor qilish</button>
-            <button type="submit" class="btn btn-primary">Aktni saqlash / Save Act</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- MODAL: PRINT PREVIEW (FOR PROTOCOLS & HANDOVER ACTS) -->
+    <!-- ============================================================== -->
+    <!-- MODAL 3: OFFICIAL PRINT PREVIEW (A4 PDF) -->
+    <!-- ============================================================== -->
     <div id="print-modal" class="modal-overlay hidden">
       <div class="modal-card print-modal-card">
         <div class="modal-header no-print">
-          <h3 id="print-modal-title">Hujjatni chop etish va ko'rish</h3>
-          <div class="modal-header-actions">
+          <h3 id="print-modal-title">Предпросмотр официального документа для печати</h3>
+          <div class="modal-header-actions" style="display:flex; gap:8px;">
             <button class="btn btn-primary" id="btn-execute-print">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="6 9 6 2 18 2 18 9"></polyline>
                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
                 <rect x="6" y="14" width="12" height="8"></rect>
               </svg>
-              <span>Chop etish / Print (PDF)</span>
+              <span>Печать / Экспорт в PDF</span>
             </button>
             <button class="btn-modal-close" id="btn-close-print-modal">&times;</button>
           </div>
         </div>
         <div class="modal-body print-modal-body" id="printable-sheet-content">
-          <!-- Dynamically Injected Clean Printable Document -->
+          <!-- Dynamically Injected Clean Official Printable Document -->
         </div>
       </div>
     </div>

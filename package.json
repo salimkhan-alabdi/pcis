@@ -1,6 +1,8 @@
 {
-  "name": "app",
-  "version": "0.0.0",
+  "name": "pems-uz",
+  "version": "1.0.0",
+  "description": "PEMS-UZ: Project Equipment Management System Uzbekistan. Система учёта поступления, выдачи и расходования оборудования в рамках проекта АБР / АБИИ.",
+  "author": "Abdiyev Salimkhon Sanjar ugli",
   "private": true,
   "type": "module",
   "scripts": {
